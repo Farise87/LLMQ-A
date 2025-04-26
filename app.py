@@ -2,17 +2,21 @@ import os
 import json
 import pandas as pd
 import numpy as np
+import threading
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from flask import Flask, request, jsonify, render_template, send_from_directory
 from flask_cors import CORS
-from llama_cpp import Llama
+from model_loaders import ModelLoaderFactory
 
 app = Flask(__name__, static_folder='static', template_folder='templates')
 CORS(app)
 
-# 模型路径
-MODEL_PATH = "D:\\unsloth.Q8_0.gguf"
+# 模型路径 - 支持GGUF和Safetensors两种格式
+# MODEL_PATH = "D:\\unsloth.Q8_0.gguf"
+MODEL_PATH = "C:/Users/22728\Desktop\作品\AiQA\model/"
+# 如果需要使用Safetensors格式的模型，可以设置为目录路径或.safetensors文件
+# MODEL_PATH = "D:\\safetensors_model_dir"
 
 # 方剂知识库路径
 CSV_PATH = "最终方剂.csv"
@@ -27,6 +31,11 @@ model = None
 df_prescriptions = None
 tfidf_vectorizer = None
 tfidf_matrix = None
+
+# 用于存储和管理生成任务的字典
+active_generations = {}
+# 线程锁，用于保护active_generations字典的并发访问
+generation_lock = threading.Lock()
 
 # 加载并处理CSV知识库
 def load_knowledge_base():
@@ -92,50 +101,52 @@ def retrieve_relevant_info(query, top_k=3):
     return relevant_info
 
 def load_model():
-    """加载GGUF模型"""
+    """根据模型格式自动加载合适的模型"""
     global model
     try:
-        # 检查模型文件是否存在
-        if not os.path.exists(MODEL_PATH):
-            print(f"错误：模型文件不存在于路径 {MODEL_PATH}")
+        # 使用模型加载器工厂创建合适的加载器
+        loader = ModelLoaderFactory.create_loader(MODEL_PATH)
+        if loader is None:
+            print(f"错误：无法为模型路径创建加载器 {MODEL_PATH}")
             return False
-            
-        print(f"尝试加载模型: {MODEL_PATH}")
-        print(f"llama-cpp-python版本: {Llama.__version__ if hasattr(Llama, '__version__') else '未知'}")
         
-        # 尝试使用不同的参数组合加载模型
-        try:
-            # 方法1：使用基本参数
-            model = Llama(
+        # 加载模型
+        # 检查CUDA是否可用
+        import torch
+        cuda_available = torch.cuda.is_available()
+        if cuda_available:
+            print("检测到CUDA可用，将使用GPU加速")
+        else:
+            print("未检测到CUDA，将使用CPU")
+            
+        if MODEL_PATH.endswith('.gguf'):
+            # GGUF模型加载参数 - 确保优先使用GPU
+            # 对于GGUF模型，n_gpu_layers参数控制使用GPU加速的层数
+            # 设置为较大值（如32或更高）可以最大化GPU利用率
+            success = loader.load_model(
                 model_path=MODEL_PATH,
                 n_ctx=2048,  # 上下文窗口大小
                 n_threads=4,  # 使用的线程数
-                n_gpu_layers=0,  # 禁用GPU加速
+                n_gpu_layers=40 if cuda_available else 0,  # 增加GPU层数以提高性能
                 verbose=True  # 启用详细日志以便调试
             )
-        except Exception as e1:
-            print(f"尝试方法1失败: {str(e1)}")
-            try:
-                # 方法2：使用legacy参数
-                model = Llama(
-                    model_path=MODEL_PATH,
-                    n_ctx=2048,
-                    n_threads=4,
-                    n_gpu_layers=0,
-                    verbose=True,
-                    legacy=True  # 尝试使用legacy模式加载
-                )
-            except Exception as e2:
-                print(f"尝试方法2失败: {str(e2)}")
-                # 方法3：使用最小参数集
-                model = Llama(model_path=MODEL_PATH)
-                
+        else:
+            # Safetensors模型加载参数
+            success = loader.load_model(
+                model_path=MODEL_PATH,
+                device="cuda" if cuda_available else "cpu"  # 优先使用CUDA
+            )
+        
+        if not success:
+            return False
+            
+        # 获取加载的模型
+        model = loader
         print("模型加载成功!")
         return True
     except Exception as e:
         print(f"模型加载失败: {str(e)}")
-        print("请检查模型格式是否与llama-cpp-python版本兼容")
-        print("可能需要更新llama-cpp-python库或使用兼容的模型文件")
+        print("请检查模型格式是否与加载器兼容")
         return False
 
 @app.route('/')
@@ -143,10 +154,41 @@ def index():
     """渲染主页"""
     return render_template('index.html')
 
+# 在单独线程中执行模型推理的函数
+def generate_response_thread(session_id, prompt, max_tokens=1024, temperature=0, top_p=0.95):
+    """在单独线程中执行模型推理"""
+    global model, active_generations
+    
+    try:
+        # 生成回复
+        response = model.create_completion(
+            prompt,
+            max_tokens=max_tokens,
+            temperature=temperature,
+            top_p=top_p,
+            stop=["\n\n\n"],
+            echo=False
+        )
+        
+        # 提取生成的文本
+        generated_text = response['choices'][0]['text'].strip()
+        
+        # 更新生成状态
+        with generation_lock:
+            if session_id in active_generations:  # 确保任务没有被取消
+                active_generations[session_id]['status'] = 'completed'
+                active_generations[session_id]['result'] = generated_text
+    except Exception as e:
+        # 更新错误状态
+        with generation_lock:
+            if session_id in active_generations:  # 确保任务没有被取消
+                active_generations[session_id]['status'] = 'error'
+                active_generations[session_id]['error'] = str(e)
+
 @app.route('/api/chat', methods=['POST'])
 def chat():
     """处理聊天请求"""
-    global model, df_prescriptions
+    global model, df_prescriptions, active_generations
     
     # 如果模型未加载，尝试加载
     if model is None:
@@ -163,6 +205,14 @@ def chat():
     # 获取请求数据
     data = request.json
     user_input = data.get('message', '')
+    session_id = data.get('session_id', str(hash(user_input + str(os.urandom(4)))))
+    
+    # 检查是否已经有正在进行的生成任务
+    with generation_lock:
+        for existing_id, generation_info in list(active_generations.items()):
+            # 清理已完成或出错的任务
+            if generation_info['status'] in ['completed', 'error', 'cancelled']:
+                active_generations.pop(existing_id, None)
     
     try:
         # 检索相关方剂信息
@@ -174,26 +224,99 @@ def chat():
         else:
             prompt = user_input
         
-        # 生成回复
-        response = model.create_completion(
-            prompt,
-            max_tokens=1024,  # 增加最大token数以容纳更长回答
-            temperature=0.7,
-            top_p=0.95,
-            stop=["\n\n\n"],  # 修改停止标记以允许包含引用信息
-            echo=False
+        # 创建新的生成任务
+        with generation_lock:
+            active_generations[session_id] = {
+                'status': 'running',
+                'prompt': prompt,
+                'result': None,
+                'error': None,
+                'knowledge_info': relevant_info
+            }
+        
+        # 在单独线程中启动生成任务
+        thread = threading.Thread(
+            target=generate_response_thread,
+            args=(session_id, prompt)
         )
+        thread.daemon = True  # 设置为守护线程，这样主程序退出时线程会自动结束
+        thread.start()
         
-        # 提取生成的文本
-        generated_text = response['choices'][0]['text']
-        
-        # 返回生成的文本和知识库信息
+        # 立即返回会话ID，客户端可以用它来查询状态
         return jsonify({
-            "response": generated_text,
-            "knowledge_info": relevant_info if relevant_info else ""
+            "session_id": session_id,
+            "status": "running"
         })
     except Exception as e:
-        return jsonify({"error": f"生成回复时出错: {str(e)}"}), 500
+        return jsonify({"error": f"处理请求时出错: {str(e)}"}), 500
+
+@app.route('/api/generation_status', methods=['GET'])
+def generation_status():
+    """获取生成任务的状态"""
+    global active_generations
+    
+    session_id = request.args.get('session_id')
+    if not session_id:
+        return jsonify({"error": "缺少session_id参数"}), 400
+    
+    with generation_lock:
+        if session_id not in active_generations:
+            return jsonify({"error": "找不到指定的生成任务"}), 404
+        
+        generation_info = active_generations[session_id]
+        
+        if generation_info['status'] == 'running':
+            return jsonify({
+                "status": "running"
+            })
+        elif generation_info['status'] == 'completed':
+            # 任务完成，返回结果
+            result = {
+                "status": "completed",
+                "response": generation_info['result'],
+                "knowledge_info": generation_info['knowledge_info'] if generation_info['knowledge_info'] else ""
+            }
+            # 可以选择在这里清理任务
+            # active_generations.pop(session_id, None)
+            return jsonify(result)
+        elif generation_info['status'] == 'error':
+            # 任务出错
+            result = {
+                "status": "error",
+                "error": generation_info['error']
+            }
+            # 可以选择在这里清理任务
+            # active_generations.pop(session_id, None)
+            return jsonify(result)
+        elif generation_info['status'] == 'cancelled':
+            # 任务被取消
+            result = {
+                "status": "cancelled"
+            }
+            # 可以选择在这里清理任务
+            # active_generations.pop(session_id, None)
+            return jsonify(result)
+
+@app.route('/api/cancel_generation', methods=['POST'])
+def cancel_generation():
+    """取消正在进行的生成任务"""
+    global active_generations
+    
+    data = request.json
+    session_id = data.get('session_id')
+    
+    if not session_id:
+        return jsonify({"error": "缺少session_id参数"}), 400
+    
+    with generation_lock:
+        if session_id not in active_generations:
+            return jsonify({"error": "找不到指定的生成任务"}), 404
+        
+        # 标记任务为已取消
+        # 注意：这不会立即停止正在进行的推理，但会阻止结果返回给用户
+        active_generations[session_id]['status'] = 'cancelled'
+        
+        return jsonify({"status": "cancelled"})
 
 @app.route('/api/model_status')
 def model_status():

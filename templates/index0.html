@@ -5,17 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI 中医助手</title>
     <style>
-        /* 关键CSS - 首屏渲染所需的最小样式集 */
         :root {
             --bg-color: #343541;
             --sidebar-bg: #202123;
-            --text-color: #F3F4F6;
+            --text-color: #ECECF1;
             --message-user-bg: #343541;
-            --message-user-text: #F3F4F6;
+            --message-user-text: #ECECF1;
             --message-ai-bg: #444654;
-            --message-ai-text: #F3F4F6;
+            --message-ai-text: #ECECF1;
             --input-bg: #40414F;
-            --input-text: #F3F4F6;
+            --input-text: #ECECF1;
             --input-border: #565869;
             --button-bg: #10A37F;
             --button-hover: #0D8A6C;
@@ -41,7 +40,6 @@
             height: 100vh;
             display: flex;
             flex-direction: column;
-            contain: strict;
         }
         
         .container {
@@ -61,7 +59,6 @@
             border-bottom: 1px solid var(--border-color);
             position: relative;
             z-index: 10;
-            will-change: transform;
         }
         
         .header h1 {
@@ -115,13 +112,10 @@
             overflow-y: auto;
             padding: 0;
             scroll-behavior: smooth;
-            contain: strict;
-            will-change: transform;
         }
         
         .message-wrapper {
-            padding: 12px 0;
-            margin-bottom: 4px;
+            padding: 16px 0;
             border-bottom: 1px solid rgba(86, 88, 105, 0.2);
         }
         
@@ -137,8 +131,6 @@
             white-space: pre-wrap;
             padding: 8px 16px;
             width: 100%;
-            font-size: 15px;
-            line-height: 1.7;
         }
         
         .user-message-wrapper {
@@ -213,8 +205,6 @@
         .message-input:focus {
             border-color: var(--button-bg);
             box-shadow: 0 0 0 1px var(--button-bg);
-            outline: 2px solid var(--button-bg);
-            outline-offset: 2px;
         }
         
         .send-button {
@@ -243,11 +233,6 @@
             cursor: not-allowed;
         }
         
-        .send-button:focus {
-            outline: 2px solid var(--button-bg);
-            outline-offset: 2px;
-        }
-        
         .typing-indicator {
             display: none;
             padding: 16px;
@@ -273,7 +258,6 @@
             display: block;
             border-radius: 50%;
             opacity: 0.4;
-            transform: scale(1);
         }
         
         .typing-indicator-dots span:nth-of-type(1) {
@@ -306,9 +290,8 @@
             background-color: #C53030;
         }
         
-        .stop-button:focus {
-            outline: 2px solid #E53E3E;
-            outline-offset: 2px;
+        .stop-button svg {
+            margin-right: 4px;
         }
         
         @keyframes blink {
@@ -358,11 +341,6 @@
             color: var(--text-color);
         }
         
-        .close-panel:focus {
-            outline: 2px solid var(--button-bg);
-            outline-offset: 2px;
-        }
-        
         .knowledge-content {
             padding: 16px;
             overflow-y: auto;
@@ -389,56 +367,10 @@
             background-color: rgba(255, 255, 255, 0.1);
         }
         
-        .show-references:focus {
-            outline: 2px solid var(--button-bg);
-            outline-offset: 2px;
-        }
-        
-        /* 骨架屏样式 */
-        #skeleton-loading {
-            display: none;
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: var(--bg-color);
-            z-index: 5;
-        }
-        
-        .skeleton-message {
-            padding: 16px;
-            margin: 8px auto;
-            max-width: 800px;
-            display: flex;
-        }
-        
-        .skeleton-avatar {
-            width: 30px;
-            height: 30px;
-            border-radius: 2px;
-            background-color: rgba(255, 255, 255, 0.1);
-            margin-right: 16px;
-            flex-shrink: 0;
-        }
-        
-        .skeleton-content {
-            flex: 1;
-        }
-        
-        .skeleton-line {
-            height: 16px;
-            background-color: rgba(255, 255, 255, 0.1);
-            margin-bottom: 8px;
-            border-radius: 4px;
-        }
-        
-        .skeleton-line.short {
-            width: 60%;
-        }
-        
-        .skeleton-line.medium {
-            width: 80%;
+        .show-references svg {
+            margin-right: 4px;
+            width: 14px;
+            height: 14px;
         }
         
         /* 响应式设计 */
@@ -461,33 +393,8 @@
             }
         }
     </style>
-    <!-- 预加载API连接 -->
-    <link rel="preconnect" href="/api">
-    <link rel="preload" as="fetch" href="/api/model_status" crossorigin>
-    <!-- 异步加载剩余CSS -->
-    <link rel="preload" href="styles.css" as="style" onload="this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="styles.css"></noscript>
 </head>
 <body>
-    <!-- 骨架屏 -->
-    <div id="skeleton-loading">
-        <div class="skeleton-message">
-            <div class="skeleton-avatar"></div>
-            <div class="skeleton-content">
-                <div class="skeleton-line short"></div>
-                <div class="skeleton-line medium"></div>
-                <div class="skeleton-line"></div>
-            </div>
-        </div>
-        <div class="skeleton-message">
-            <div class="skeleton-avatar"></div>
-            <div class="skeleton-content">
-                <div class="skeleton-line short"></div>
-                <div class="skeleton-line"></div>
-            </div>
-        </div>
-    </div>
-
     <div class="container">
         <div class="header">
             <h1>AI 中医助手</h1>
@@ -541,40 +448,7 @@
     </div>
 
     <script>
-        // 性能监控
-        window.addEventListener('load', () => {
-            const timing = performance.timing;
-            const loadTime = timing.loadEventEnd - timing.navigationStart;
-            console.log(`页面加载时间: ${loadTime}ms`);
-            
-            // 可以发送到分析服务
-            if (loadTime > 3000) {
-                fetch('/analytics', {
-                    method: 'POST',
-                    body: JSON.stringify({ 
-                        event: 'performance_metric',
-                        loadTime: loadTime 
-                    })
-                });
-            }
-        });
-
-        // 防抖函数
-        function debounce(func, wait) {
-            let timeout;
-            return function() {
-                const context = this, args = arguments;
-                clearTimeout(timeout);
-                timeout = setTimeout(() => {
-                    func.apply(context, args);
-                }, wait);
-            };
-        }
-
         document.addEventListener('DOMContentLoaded', function() {
-            // 显示骨架屏
-            document.getElementById('skeleton-loading').style.display = 'block';
-            
             const chatMessages = document.getElementById('chat-messages');
             const messageInput = document.getElementById('message-input');
             const sendButton = document.getElementById('send-button');
@@ -583,17 +457,16 @@
             const knowledgePanel = document.getElementById('knowledge-panel');
             const knowledgeContent = document.getElementById('knowledge-content');
             const closePanel = document.getElementById('close-panel');
-            const skeletonLoading = document.getElementById('skeleton-loading');
             
             let isProcessing = false;
             let currentSessionId = null;
             let statusCheckInterval = null;
             
-            // 自动调整文本框高度 - 添加防抖
-            messageInput.addEventListener('input', debounce(function() {
+            // 自动调整文本框高度
+            messageInput.addEventListener('input', function() {
                 this.style.height = 'auto';
                 this.style.height = (this.scrollHeight) + 'px';
-            }, 150));
+            });
             
             // 检查模型状态
             checkModelStatus();
@@ -621,17 +494,6 @@
                 knowledgePanel.classList.remove('active');
             });
             
-            // 知识面板交互观察
-            const panelObserver = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting && knowledgeContent.textContent === '') {
-                        // 可以在这里加载更多知识内容
-                    }
-                });
-            }, { threshold: 0.1 });
-            
-            panelObserver.observe(knowledgePanel);
-            
             // 检查模型状态函数
             function checkModelStatus() {
                 fetch('/api/model_status')
@@ -642,8 +504,6 @@
                             modelStatus.className = 'status-indicator status-ready';
                             messageInput.disabled = false;
                             sendButton.disabled = false;
-                            // 隐藏骨架屏
-                            skeletonLoading.style.display = 'none';
                         } else {
                             modelStatus.textContent = '模型加载失败';
                             modelStatus.className = 'status-indicator status-error';
@@ -666,28 +526,8 @@
                     messageInput.disabled = true;
                     sendButton.disabled = true;
                     
-                    // 使用DocumentFragment添加用户消息
-                    const fragment = document.createDocumentFragment();
-                    const wrapperElement = document.createElement('div');
-                    wrapperElement.classList.add('message-wrapper', 'user-message-wrapper');
-                    
-                    const containerElement = document.createElement('div');
-                    containerElement.classList.add('message-container');
-                    
-                    const avatarElement = document.createElement('div');
-                    avatarElement.classList.add('avatar', 'user-avatar');
-                    avatarElement.textContent = '你';
-                    
-                    const messageElement = document.createElement('div');
-                    messageElement.classList.add('message', 'user-message');
-                    messageElement.textContent = message;
-                    
-                    containerElement.appendChild(avatarElement);
-                    containerElement.appendChild(messageElement);
-                    wrapperElement.appendChild(containerElement);
-                    fragment.appendChild(wrapperElement);
-                    
-                    chatMessages.appendChild(fragment);
+                    // 添加用户消息到聊天区域
+                    addMessage(message, 'user');
                     
                     // 清空输入框并重置高度
                     messageInput.value = '';
@@ -695,13 +535,8 @@
                     
                     // 显示正在输入指示器和停止按钮
                     typingIndicator.style.display = 'block';
-                    stopButton.style.display = 'flex';
+                    document.getElementById('stop-button').style.display = 'flex';
                     chatMessages.scrollTop = chatMessages.scrollHeight;
-                    
-                    // 使用requestAnimationFrame优化滚动
-                    requestAnimationFrame(() => {
-                        chatMessages.scrollTop = chatMessages.scrollHeight;
-                    });
                     
                     // 发送请求到后端
                     fetch('/api/chat', {
@@ -716,7 +551,7 @@
                         if (data.error) {
                             // 处理错误
                             typingIndicator.style.display = 'none';
-                            stopButton.style.display = 'none';
+                            document.getElementById('stop-button').style.display = 'none';
                             addMessage('抱歉，发生了错误: ' + data.error, 'ai');
                             resetUI();
                         } else if (data.session_id) {
@@ -729,7 +564,7 @@
                     .catch(error => {
                         console.error('发送消息出错:', error);
                         typingIndicator.style.display = 'none';
-                        stopButton.style.display = 'none';
+                        document.getElementById('stop-button').style.display = 'none';
                         addMessage('抱歉，连接服务器时出错，请稍后再试。', 'ai');
                         resetUI();
                     });
@@ -746,14 +581,14 @@
                         if (data.error) {
                             clearInterval(statusCheckInterval);
                             typingIndicator.style.display = 'none';
-                            stopButton.style.display = 'none';
+                            document.getElementById('stop-button').style.display = 'none';
                             addMessage('抱歉，发生了错误: ' + data.error, 'ai');
                             resetUI();
                         } else if (data.status === 'completed') {
                             // 生成完成
                             clearInterval(statusCheckInterval);
                             typingIndicator.style.display = 'none';
-                            stopButton.style.display = 'none';
+                            document.getElementById('stop-button').style.display = 'none';
                             
                             // 添加AI回复
                             addMessage(data.response, 'ai', data.knowledge_info ? true : false);
@@ -768,14 +603,14 @@
                             // 生成出错
                             clearInterval(statusCheckInterval);
                             typingIndicator.style.display = 'none';
-                            stopButton.style.display = 'none';
+                            document.getElementById('stop-button').style.display = 'none';
                             addMessage('抱歉，生成回复时出错: ' + data.error, 'ai');
                             resetUI();
                         } else if (data.status === 'cancelled') {
                             // 生成被取消
                             clearInterval(statusCheckInterval);
                             typingIndicator.style.display = 'none';
-                            stopButton.style.display = 'none';
+                            document.getElementById('stop-button').style.display = 'none';
                             addMessage('生成已被用户取消', 'ai');
                             resetUI();
                         }
@@ -785,7 +620,7 @@
                         console.error('检查生成状态出错:', error);
                         clearInterval(statusCheckInterval);
                         typingIndicator.style.display = 'none';
-                        stopButton.style.display = 'none';
+                        document.getElementById('stop-button').style.display = 'none';
                         addMessage('抱歉，检查生成状态时出错，请稍后再试。', 'ai');
                         resetUI();
                     });
@@ -821,13 +656,11 @@
                 messageInput.disabled = false;
                 sendButton.disabled = false;
                 messageInput.focus();
-            }
+                }
+
             
-            // 添加消息到聊天区域 - 优化版本
+            // 添加消息到聊天区域
             function addMessage(text, sender, hasReferences = false) {
-                // 使用DocumentFragment
-                const fragment = document.createDocumentFragment();
-                
                 // 创建消息包装器
                 const wrapperElement = document.createElement('div');
                 wrapperElement.classList.add('message-wrapper');
@@ -874,19 +707,14 @@
                 containerElement.appendChild(avatarElement);
                 containerElement.appendChild(messageElement);
                 wrapperElement.appendChild(containerElement);
-                fragment.appendChild(wrapperElement);
                 
                 // 添加到聊天区域
-                chatMessages.appendChild(fragment);
+                chatMessages.appendChild(wrapperElement);
                 
-                // 使用requestAnimationFrame优化滚动
-                requestAnimationFrame(() => {
-                    chatMessages.scrollTop = chatMessages.scrollHeight;
-                });
+                // 滚动到底部
+                chatMessages.scrollTop = chatMessages.scrollHeight;
             }
         });
     </script>
-    <!-- 延迟加载非关键脚本 -->
-    <script src="non-critical.js" defer></script>
 </body>
 </html>
