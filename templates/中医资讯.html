@@ -1,0 +1,1351 @@
+<!DOCTYPE html>
+
+	<html lang="zh-CN">
+
+	<head>
+
+	    <meta charset="UTF-8">
+
+	    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+	    <title>中医资讯 - 传承千年智慧 守护现代健康</title>
+
+	    <style>
+
+	        :root {
+
+	            --primary-color: #80634d; /* 传统中医棕 */
+
+	            --secondary-color: #f7d8b0; /* 浅米色 */
+
+	            --accent-color: #A0522D; /* 深棕 */
+
+	            --text-color: #333;
+
+	            --light-bg: #F5F5F5;
+
+	            --border-radius: 8px;
+
+	        }
+
+	 
+
+	        * {
+
+	            margin: 0;
+
+	            padding: 0;
+
+	            box-sizing: border-box;
+
+	            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+
+	        }
+
+	 
+
+	        body {
+
+	            line-height: 1.6;
+
+	            color: var(--text-color);
+
+	            background-color: var(--light-bg);
+
+	        }
+
+	 
+
+	        /* 顶部导航栏 */
+
+	        header {
+
+	            background: linear-gradient(135deg, var(--primary-color), #6B4226);
+
+	            color: white;
+
+	            padding: 1rem 5%;
+
+	            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+
+	            position: sticky;
+
+	            top: 0;
+
+	            z-index: 100;
+
+	        }
+
+	 
+
+	        .nav-container {
+
+	            display: flex;
+
+	            justify-content: space-between;
+
+	            align-items: center;
+
+	            max-width: 1200px;
+
+	            margin: 0 auto;
+
+	        }
+
+	 
+
+	        .logo {
+
+	            font-size: 1.6rem;
+
+	            font-weight: bold;
+
+	            display: flex;
+
+	            align-items: center;
+
+	            gap: 0.5rem;
+
+	        }
+
+	 
+
+	        .logo::before {
+
+	            content: "🌿";
+
+	            font-size: 1.8rem;
+
+	        }
+
+	 
+
+	        nav ul {
+
+	            display: flex;
+
+	            list-style: none;
+
+	            gap: 1.5rem;
+
+	        }
+
+	 
+
+	        nav ul li a {
+
+	            color: white;
+
+	            text-decoration: none;
+
+	            padding: 0.5rem 0;
+
+	            position: relative;
+
+	            transition: color 0.3s;
+
+	        }
+
+	 
+
+	        nav ul li a::after {
+
+	            content: '';
+
+	            position: absolute;
+
+	            width: 0;
+
+	            height: 2px;
+
+	            bottom: 0;
+
+	            left: 0;
+
+	            background-color: var(--secondary-color);
+
+	            transition: width 0.3s;
+
+	        }
+
+	 
+
+	        nav ul li a:hover {
+
+	            color: var(--secondary-color);
+
+	        }
+
+	 
+
+	        nav ul li a:hover::after {
+
+	            width: 100%;
+
+	        }
+
+	 
+
+	        /* 搜索框 */
+
+	        .search-box {
+
+	            display: flex;
+
+	            align-items: center;
+
+	        }
+
+	 
+
+	        .search-box input {
+
+	            padding: 0.5rem 1rem;
+
+	            border-radius: 20px;
+
+	            border: none;
+
+	            width: 200px;
+
+	            transition: width 0.3s;
+
+	        }
+
+	 
+
+	        .search-box input:focus {
+
+	            width: 250px;
+
+	            outline: none;
+
+	        }
+
+	 
+
+	        /* 英雄区域 */
+	/* 图片轮播样式 */
+
+	.hero-carousel {
+
+	    position: relative;
+
+	    height: 500px;
+
+	    overflow: hidden;
+
+	}
+
+	 
+
+	.carousel-container {
+
+	    display: flex;
+
+	    height: 100%;
+
+	    transition: transform 0.5s ease;
+
+	}
+
+	 
+
+	.carousel-slide {
+
+	    min-width: 100%;
+
+	    position: relative;
+
+	}
+
+	 
+
+	.carousel-slide img {
+
+	    width: 100%;
+
+	    height: 100%;
+
+	    object-fit: cover;
+
+	}
+
+	 
+
+	.carousel-caption {
+
+	    position: absolute;
+
+	    bottom: 80px;
+
+	    left: 50%;
+
+	    transform: translateX(-50%);
+
+	    text-align: center;
+
+	    color: white;
+
+	    background: rgba(0, 0, 0, 0.5);
+
+	    padding: 20px;
+
+	    border-radius: 5px;
+
+	}
+
+	 
+
+	/* 轮播控制按钮 */
+
+	.carousel-control {
+
+	    position: absolute;
+
+	    top: 50%;
+
+	    transform: translateY(-50%);
+
+	    background: rgba(0, 0, 0, 0.5);
+
+	    color: white;
+
+	    border: none;
+
+	    padding: 15px;
+
+	    cursor: pointer;
+
+	    font-size: 24px;
+
+	    z-index: 10;
+
+	}
+
+	 
+
+	.carousel-control.prev {
+
+	    left: 20px;
+
+	}
+
+	 
+
+	.carousel-control.next {
+
+	    right: 20px;
+
+	}
+
+	 
+
+	/* 轮播导航点 */
+
+	.carousel-dots {
+
+	    position: absolute;
+
+	    bottom: 20px;
+
+	    left: 50%;
+
+	    transform: translateX(-50%);
+
+	    display: flex;
+
+	    gap: 10px;
+
+	}
+
+	 
+
+	.dot {
+
+	    width: 12px;
+
+	    height: 12px;
+
+	    border-radius: 50%;
+
+	    background: rgba(255, 255, 255, 0.5);
+
+	    cursor: pointer;
+
+	}
+
+	 
+
+	.dot.active {
+
+	    background: white;
+
+	}
+
+	 
+
+	/* 资讯和指南板块 */
+
+	.health-info-section {
+
+	    padding: 40px 0;
+
+	    background: #f9f9f9;
+
+	}
+
+	 
+
+	.info-cards {
+
+	    display: grid;
+
+	    grid-template-columns: 1fr 1fr;
+
+	    gap: 30px;
+
+	}
+
+	 
+
+	.info-card {
+
+	    background: white;
+
+	    padding: 25px;
+
+	    border-radius: 8px;
+
+	    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+
+	}
+
+	 
+
+	.info-card h2 {
+
+	    margin-bottom: 20px;
+
+	    padding-bottom: 10px;
+
+	    border-bottom: 2px solid #e8e8e8;
+
+	    color: #333;
+
+	}
+
+	 
+
+	.news-list li {
+
+	    padding: 12px 0;
+
+	    border-bottom: 1px solid #eee;
+
+	}
+
+	 
+
+	.news-list li:last-child {
+
+	    border-bottom: none;
+
+	}
+
+	 
+
+	.news-title {
+
+	    display: block;
+
+	    font-weight: 500;
+
+	    margin-bottom: 5px;
+
+	}
+
+	 
+
+	.news-date {
+
+	    color: #888;
+
+	    font-size: 0.9em;
+
+	}
+
+	 
+
+	.view-more {
+
+	    color: #0066cc;
+
+	    font-weight: 500;
+
+	}
+
+	 
+
+	.guide-list {
+
+	    display: grid;
+
+	    grid-template-columns: 1fr;
+
+	    gap: 20px;
+
+	}
+
+	 
+
+	.guide-item {
+
+	    background: #f5f5f5;
+
+	    padding: 15px;
+
+	    border-radius: 6px;
+
+	}
+
+	 
+
+	.guide-item img {
+
+	    width: 100%;
+
+	    height: 180px;
+
+	    object-fit: cover;
+
+	    border-radius: 4px;
+
+	    margin-bottom: 12px;
+
+	}
+
+	 
+
+	.guide-item h3 {
+
+	    margin-bottom: 8px;
+
+	    font-size: 1.2em;
+
+	}
+
+	 
+
+	.guide-item p {
+
+	    color: #666;
+
+	    margin-bottom: 12px;
+
+	    font-size: 0.95em;
+
+	}
+
+	 
+
+	.read-more {
+
+	    color: #0066cc;
+
+	    font-weight: 500;
+
+	    font-size: 0.95em;
+
+	}
+
+	        /* 主要内容区 */
+
+	        .container {
+
+	            max-width: 1200px;
+
+	            margin: 0 auto;
+
+	            padding: 0 5%;
+
+	        }
+
+	 
+
+	     
+
+	 
+
+	        /* 特色板块 - 养生时令 */
+
+	        .seasonal-care {
+
+	            background: linear-gradient(135deg, #fdfdfd, #f9f9f9);
+
+	            padding: 3rem 0;
+
+	            margin: 3rem 0;
+
+	            border-radius: var(--border-radius);
+
+	        }
+
+	 
+
+	        .seasonal-header {
+
+	            text-align: center;
+
+	            margin-bottom: 2rem;
+
+	        }
+
+	 
+
+	        .seasonal-header h2 {
+
+	            color: var(--primary-color);
+
+	            margin-bottom: 0.5rem;
+
+	        }
+
+	 
+
+	        .seasonal-cards {
+
+	            display: grid;
+
+	            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+
+	            gap: 1.5rem;
+
+	        }
+
+	 
+
+	        .seasonal-card {
+
+	            text-align: center;
+
+	            padding: 1.5rem;
+
+	            background: white;
+
+	            border-radius: var(--border-radius);
+
+	            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+
+	            transition: all 0.3s;
+
+	        }
+
+	 
+
+	        .seasonal-card:hover {
+
+	            transform: translateY(-5px);
+
+	            box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+
+	        }
+
+	 
+
+	        .seasonal-icon {
+
+	            font-size: 3rem;
+
+	            margin-bottom: 1rem;
+
+	            color: var(--primary-color);
+
+	        }
+
+	 
+
+	        /* 专家专栏 */
+
+	        .expert-section {
+
+	            margin: 3rem 0;
+
+	        }
+
+	 
+
+	        .expert-header {
+
+	            display: flex;
+
+	            justify-content: space-between;
+
+	            align-items: center;
+
+	            margin-bottom: 1.5rem;
+
+	        }
+
+	 
+
+	        .expert-header h2 {
+
+	            color: var(--primary-color);
+
+	        }
+
+	 
+
+	        .expert-header a {
+
+	            color: var(--accent-color);
+
+	            text-decoration: none;
+
+	            font-size: 0.9rem;
+
+	        }
+
+	 
+
+	        .expert-grid {
+
+	            display: grid;
+
+	            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+
+	            gap: 2rem;
+
+	        }
+
+	 
+
+	        .expert-card {
+
+	            background: white;
+
+	            border-radius: var(--border-radius);
+
+	            overflow: hidden;
+
+	            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+
+	        }
+
+	 
+
+	        .expert-avatar {
+
+	            height: 200px;
+
+	            background: var(--secondary-color);
+
+	            display: flex;
+
+	            align-items: center;
+
+	            justify-content: center;
+
+	            font-size: 4rem;
+
+	            color: white;
+
+	        }
+
+	 
+
+	        .expert-info {
+
+	            padding: 1.5rem;
+
+	        }
+
+	 
+
+	        .expert-info h3 {
+
+	            color: var(--primary-color);
+
+	            margin-bottom: 0.5rem;
+
+	        }
+
+	 
+
+	        .expert-info p {
+
+	            color: #666;
+
+	            font-size: 0.9rem;
+
+	            margin-bottom: 1rem;
+
+	        }
+
+	 
+
+	        .expert-specialty {
+
+	            display: inline-block;
+
+	            background: var(--light-bg);
+
+	            padding: 0.3rem 0.8rem;
+
+	            border-radius: 20px;
+
+	            font-size: 0.8rem;
+
+	            color: var(--accent-color);
+
+	        }
+
+	 
+
+	        /* 中药材库 */
+
+	        .herb-section {
+
+	            margin: 3rem 0;
+
+	        }
+
+	 
+
+	        .herb-grid {
+
+	            display: grid;
+
+	            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+
+	            gap: 1rem;
+
+	        }
+
+	 
+
+	        .herb-card {
+
+	            background: white;
+
+	            border-radius: var(--border-radius);
+
+	            padding: 1rem;
+
+	            text-align: center;
+
+	            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+
+	            transition: all 0.3s;
+
+	        }
+
+	 
+
+	        .herb-card:hover {
+
+	            transform: translateY(-3px);
+
+	            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+
+	        }
+
+	 
+
+	        .herb-icon {
+
+	            font-size: 2.5rem;
+
+	            margin-bottom: 0.5rem;
+
+	            color: var(--primary-color);
+
+	        }
+
+	 
+
+	        .herb-name {
+
+	            font-weight: bold;
+
+	            color: var(--accent-color);
+
+	        }
+
+	
+
+	        /* 响应式设计 */
+
+	        @media (max-width: 768px) {
+
+	            .nav-container {
+
+	                flex-direction: column;
+
+	                gap: 1rem;
+
+	            }
+
+	            
+
+	            nav ul {
+
+	                margin-top: 0.5rem;
+
+	                gap: 1rem;
+
+	            }
+
+	            
+
+	            .hero h1 {
+
+	                font-size: 2rem;
+
+	            }
+
+	            
+
+	            .search-box {
+
+	                width: 100%;
+
+	                margin-top: 1rem;
+
+	                justify-content: center;
+
+	            }
+
+	            
+
+	            .search-box input {
+
+	                width: 100%;
+
+	                max-width: 300px;
+
+	            }
+
+	        }
+
+	    </style>
+
+	</head>
+
+	<body>
+
+	    <header>
+
+	        <div class="nav-container">
+
+	            <div class="logo">中医资讯</div>
+
+	        
+
+	            <div class="search-box">
+
+	                <input type="text" placeholder="搜索中医知识...">
+
+	            </div>
+
+	        </div>
+
+	    </header>
+
+	 
+
+
+	<section class="hero-carousel">
+
+	    <!-- 图片轮播容器 -->
+
+	    <div class="carousel-container">
+
+	        <!-- 第一张幻灯片 -->
+
+	        <div class="carousel-slide active">
+
+	            <img src="images/carousel1.jpg" alt="中医养生">
+
+	            <div class="carousel-caption">
+
+	                <h1>传承千年中医智慧 <br> 守护现代健康生活</h1>
+
+	            </div>
+
+	        </div>
+
+	        
+
+	        <!-- 第二张幻灯片 -->
+
+	        <div class="carousel-slide">
+
+	            <img src="images/carousel2.jpg" alt="中医文化">
+
+	            <div class="carousel-caption">
+
+	                <h1>弘扬中医文化 <br> 传播健康理念</h1>
+
+	            </div>
+
+	        </div>
+
+	        
+
+	        <!-- 第三张幻灯片 -->
+
+	        <div class="carousel-slide">
+
+	            <img src="images/carousel3.jpg" alt="药食同源">
+
+	            <div class="carousel-caption">
+
+	                <h1>药食同源 <br> 调理为本</h1>
+
+	            </div>
+
+	        </div>
+
+	    </div>
+
+	    
+
+	    <!-- 轮播导航点 -->
+
+	    <div class="carousel-dots">
+
+	        <span class="dot active" data-slide="0"></span>
+
+	        <span class="dot" data-slide="1"></span>
+
+	        <span class="dot" data-slide="2"></span>
+
+	    </div>
+
+	    
+
+	    <!-- 轮播控制按钮 -->
+
+	    <button class="carousel-control prev">&#10094;</button>
+
+	    <button class="carousel-control next">&#10095;</button>
+
+	</section>
+
+	 
+
+	<!-- 最新资讯和养生指南板块 -->
+
+	<section class="health-info-section">
+
+	    <div class="container">
+
+	        <div class="info-cards">
+
+	            <!-- 最新资讯卡片 -->
+
+	            <div class="info-card">
+
+	                <h2>最新资讯</h2>
+
+	                <ul class="news-list">
+
+	                    <li>
+
+	                        <a href="#">
+
+	                            <span class="news-title">冬季养生：中医专家推荐5种滋补食材</span>
+
+	                            <span class="news-date">2023-11-15</span>
+
+	                        </a>
+
+	                    </li>
+
+	                    <li>
+
+	                        <a href="#">
+
+	                            <span class="news-title">中医针灸被列入联合国非物质文化遗产名录</span>
+
+	                            <span class="news-date">2023-11-10</span>
+
+	                        </a>
+
+	                    </li>
+
+	                    <li>
+
+	                        <a href="#">
+
+	                            <span class="news-title">研究发现：中药复方对新冠肺炎有显著疗效</span>
+
+	                            <span class="news-date">2023-11-05</span>
+
+	                        </a>
+
+	                    </li>
+
+	                    <li>
+
+	                        <a href="#" class="view-more">查看更多 &raquo;</a>
+
+	                    </li>
+
+	                </ul>
+
+	            </div>
+
+	            
+
+	            <!-- 养生指南卡片 -->
+
+	            <div class="info-card">
+
+	                <h2>养生指南</h2>
+
+	                <div class="guide-list">
+
+	                    <div class="guide-item">
+
+	                        <img src="images/guide1.jpg" alt="穴位按摩">
+
+	                        <h3>每日穴位按摩指南</h3>
+
+	                        <p>学习简单的自我按摩技巧，缓解疲劳，增强免疫力</p>
+
+	                        <a href="#" class="read-more">阅读详情 &raquo;</a>
+
+	                    </div>
+
+	                    <div class="guide-item">
+
+	                        <img src="images/guide2.jpg" alt="四季养生">
+
+	                        <h3>四季养生要点</h3>
+
+	                        <p>顺应自然规律，掌握春养肝、夏养心、秋养肺、冬养肾的秘诀</p>
+
+	                        <a href="#" class="read-more">阅读详情 &raquo;</a>
+
+	                    </div>
+
+	                    <div class="guide-item">
+
+	                        <img src="images/guide3.jpg" alt="食疗养生">
+
+	                        <h3>家常食疗方案</h3>
+
+	                        <p>利用厨房常见食材，制作简单有效的养生食疗方</p>
+
+	                        <a href="#" class="read-more">阅读详情 &raquo;</a>
+
+	                    </div>
+
+	                </div>
+
+	            </div>
+
+	        </div>
+
+	    </div>
+
+	</section>
+	 
+
+	    <div class="container">
+
+	       
+	 
+
+	        <!-- 养生时令 -->
+
+	        <section class="seasonal-care">
+
+	            <div class="seasonal-header">
+
+	                <h2>二十四节气养生</h2>
+
+	                <p>顺应自然规律，调养身心健康</p>
+
+	            </div>
+
+	            <div class="seasonal-cards">
+
+	                <div class="seasonal-card">
+
+	                    <div class="seasonal-icon">🌸</div>
+
+	                    <h3>春分</h3>
+
+	                    <p>阴阳平衡，养肝护胃</p>
+
+	                </div>
+
+	                <div class="seasonal-card">
+
+	                    <div class="seasonal-icon">☀️</div>
+
+	                    <h3>夏至</h3>
+
+	                    <p>养心安神，清热解暑</p>
+
+	                </div>
+
+	                <div class="seasonal-card">
+
+	                    <div class="seasonal-icon">🍂</div>
+
+	                    <h3>秋分</h3>
+
+	                    <p>滋阴润燥，养肺防寒</p>
+
+	                </div>
+
+	                <div class="seasonal-card">
+
+	                    <div class="seasonal-icon">❄️</div>
+
+	                    <h3>冬至</h3>
+
+	                    <p>补肾藏精，温补阳气</p>
+
+	                </div>
+
+	            </div>
+
+	        </section>
+
+	 
+
+	        <!-- 专家专栏 -->
+
+	        <section class="expert-section">
+
+	            <div class="expert-header">
+
+	                <h2>中医小常识</h2>
+
+	                <a href="#">更多常识 →</a>
+
+	            </div>
+
+	            <div class="expert-grid">
+
+	                <div class="expert-card">
+
+	                    <div class="expert-avatar">👨⚕️</div>
+
+	                    <div class="expert-info">
+
+	                        <h3>李明德 主任医师</h3>
+
+	                        <p>从事中医临床工作30年，擅长针灸治疗...</p>
+
+	                        <span class="expert-specialty">针灸推拿</span>
+
+	                    </div>
+
+	                </div>
+
+	                <div class="expert-card">
+
+	                    <div class="expert-avatar">👩⚕️</div>
+
+	                    <div class="expert-info">
+
+	                        <h3>王芳 副主任医师</h3>
+
+	                        <p>专注女性健康调理，擅长中药内服...</p>
+
+	                        <span class="expert-specialty">妇科调理</span>
+
+	                    </div>
+
+	                </div>
+
+	                <div class="expert-card">
+
+	                    <div class="expert-avatar">👨🦳</div>
+
+	                    <div class="expert-info">
+
+	                        <h3>张建国 教授</h3>
+
+	                        <p>国家级名老中医，擅长疑难杂症...</p>
+
+	                        <span class="expert-specialty">疑难杂症</span>
+
+	                    </div>
+
+	                </div>
+
+	            </div>
+
+	        </section>
+
+	 
+
+	     
+	    </div>
+
+	 <script>
+		document.addEventListener('DOMContentLoaded', function() {
+    const slides = document.querySelectorAll('.carousel-slide');
+    const dots = document.querySelectorAll('.dot');
+    const prevBtn = document.querySelector('.prev');
+    const nextBtn = document.querySelector('.next');
+    let currentSlide = 0;
+    
+    // 显示指定幻灯片
+    function showSlide(n) {
+        slides.forEach(slide => slide.classList.remove('active'));
+        dots.forEach(dot => dot.classList.remove('active'));
+        
+        currentSlide = (n + slides.length) % slides.length;
+        slides[currentSlide].classList.add('active');
+        dots[currentSlide].classList.add('active');
+    }
+    
+    // 下一张幻灯片
+    function nextSlide() {
+        showSlide(currentSlide + 1);
+    }
+    
+    // 上一张幻灯片
+    function prevSlide() {
+        showSlide(currentSlide - 1);
+    }
+    
+    // 按钮点击事件
+    nextBtn.addEventListener('click', nextSlide);
+    prevBtn.addEventListener('click', prevSlide);
+    
+    // 导航点点击事件
+    dots.forEach(dot => {
+        dot.addEventListener('click', function() {
+            const slideIndex = parseInt(this.getAttribute('data-slide'));
+            showSlide(slideIndex);
+        });
+    });
+    
+    // 自动轮播（可选）
+    let slideInterval = setInterval(nextSlide, 5000);
+    
+    // 鼠标悬停时暂停自动轮播
+    const carousel = document.querySelector('.hero-carousel');
+    carousel.addEventListener('mouseenter', () => {
+        clearInterval(slideInterval);
+    });
+    
+    carousel.addEventListener('mouseleave', () => {
+        slideInterval = setInterval(nextSlide, 5000);
+    });
+});
+	 </script>
+
+	</body>
+
+	</html>

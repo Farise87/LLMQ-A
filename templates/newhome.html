@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>中医药推荐平台</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    }
+    body {
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      color: #333;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: rgba(219, 207, 207, 0.336);
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+      overflow: hidden;
+    }
+    /* 顶部导航栏 */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 40px;
+      background: linear-gradient(135deg, #dfedff, #ecfff1);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      border-radius: 0 0 8px 8px;
+      color: #2c3e50;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      transition: all 0.3s ease;
+    }
+    .header:hover {
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+      background: linear-gradient(135deg, #c4e1ff, #d4ffeb);
+      transform: translateY(-2px);
+    }
+    .header h1 {
+      font-size: 40px;
+      font-weight: 600;
+      color: #2b5567;
+      display: flex;
+      align-items: center;
+    }
+    .header h1 img {
+      margin-right: 20px;
+    }
+    .nav-links {
+      display: flex;
+      gap: 30px;
+    }
+    .nav-link {
+      color: #605e5e;
+      text-decoration: none;
+      font-size: 15px;
+      font-weight: 500;
+      padding: 8px 0;
+      position: relative;
+      transition: all 0.3s;
+    }
+    .nav-link:hover {
+      color: #13242b;
+    }
+    .nav-link.active {
+      color: #15262e;
+      font-weight: 600;
+    }
+    .nav-link.active::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: #1f3d4a;
+    }
+    /* 搜索框区域 */
+    .search-section {
+      padding: 80px 40px;
+      text-align: center;
+      background: linear-gradient(rgba(181, 191, 236, 0.8), rgba(199, 173, 173, 0.8)),
+        url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 80 80"><path d="M0 0h80v80H0z" fill="none"/><path d="M0 0 L80 80 M80 0 L0 80" stroke="%234a90e2" stroke-width="1" opacity="0.2"/><circle cx="40" cy="40" r="10" fill="%234a90e2" opacity="0.2"/></svg>');
+      background-color: #b1cbe6;
+      position: relative;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(156, 92, 92, 0.1);
+      margin: 20px 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #333;
+      overflow: hidden;
+    }
+    .search-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><path d="M20 20 L80 20 L80 80 L20 80 Z" fill="none" stroke="%234a90e2" stroke-width="1"/><circle cx="50" cy="50" r="5" fill="%234a90e2"/></svg>');
+      opacity: 0.15;
+      pointer-events: none;
+    }
+    .search-section h2 {
+      font-size: 2.5em;
+      margin-bottom: 20px;
+      color: #2c3e50;
+    }
+    .search-section {
+      animation: fadeIn 1s ease-out;
+    }
+    @keyframes fadeIn {
+      from { 
+        opacity: 0; 
+        transform: translateY(20px); 
+      }
+      to { 
+        opacity: 1; 
+        transform: translateY(0); 
+      }
+    }
+    .search-section:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.15);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .search-content {
+      position: relative;
+      z-index: 1;
+    }
+    .search-box {
+      width: 80%;
+      max-width: 700px;
+      margin: 0 auto 20px;
+      display: flex;
+      border-radius: 30px;
+      overflow: hidden;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+    .search-box input {
+      flex: 1;
+      padding: 15px 25px;
+      border: none;
+      font-size: 16px;
+      outline: none;
+    }
+    .search-box button {
+      background: #59232ac5;
+      color: white;
+      border: none;
+      padding: 0 30px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .search-box button:hover {
+      background: #c0392b;
+    }
+    .search-tips {
+      margin-top: 15px;
+      color: white;
+      font-size: 14px;
+    }
+    /* 主体内容区 */
+    .main-content {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 40px;
+      padding: 30px;
+      background: linear-gradient(to bottom, #f4eaf5, #f7f7e5);
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(32, 28, 28, 0.699);
+      margin: 20px auto;
+      max-width: 1200px;
+      transition: all 0.3s ease;
+    }
+    .main-content:hover {
+      box-shadow: 0 6px 20px rgba(173, 128, 128, 0.452);
+    }
+    /* 推荐药材卡片 */
+    .herb-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 25px;
+      padding: 20px;
+    }
+    .herb-card {
+      background: rgb(255, 255, 255);
+      border-radius: 12px;
+      overflow: hidden;
+      transition: all 0.3s ease;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+      border: 1px solid #f7eeee;
+    }
+    .herb-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(32, 13, 13, 0.15);
+    }
+    .herb-card img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      transition: transform 0.3s ease;
+    }
+    .herb-card:hover img {
+      transform: scale(1.05);
+    }
+    .herb-info {
+      padding: 20px;
+    }
+    .herb-name {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: #2c3e50;
+    }
+    .herb-desc {
+      font-size: 14px;
+      color: #7f8c8d;
+      line-height: 1.6;
+      margin-bottom: 15px;
+    }
+    .herb-tag {
+      display: inline-block;
+      background: #f1c40f;
+      color: white;
+      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-weight: 500;
+      transition: background 0.3s ease;
+    }
+    .herb-tag:hover {
+      background: #f39c12;
+    }
+    /* 新闻框架 */
+    .news-section {
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 25px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+      margin: 20px 0;
+    }
+    .news-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid #e0e0e0;
+    }
+    .news-header h2 {
+      font-size: 22px;
+      color: #2c3e50;
+      font-weight: 600;
+    }
+    .news-header a {
+      font-size: 14px;
+      color: #3498db;
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+    .news-header a:hover {
+      color: #2980b9;
+    }
+    .news-item {
+      margin-bottom: 20px;
+      padding-bottom: 20px;
+      border-bottom: 1px dashed #e0e0e0;
+      transition: all 0.3s ease;
+    }
+    .news-item:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+    .news-item:hover {
+      transform: translateX(5px);
+    }
+    .news-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #2c3e50;
+      transition: color 0.3s ease;
+    }
+    .news-title:hover {
+      color: #3498db;
+    }
+    .news-date {
+      font-size: 12px;
+      color: #95a5a6;
+      font-style: italic;
+    }
+    /* 响应式调整 */
+    @media (max-width: 900px) {
+      .main-content {
+        grid-template-columns: 1fr;
+      }
+      .search-box {
+        width: 95%;
+      }
+      .header {
+        padding: 15px;
+        flex-direction: column;
+        gap: 15px;
+      }
+      .nav-links {
+        gap: 15px;
+      }
+    }
+  </style>
+  <script>
+    async function performSearch() {
+      const keyword = document.getElementById('searchInput').value.trim();
+      const resultsContainer = document.getElementById('searchResults');
+      const mainContent = document.querySelector('.main-content');
+
+      resultsContainer.innerHTML = '';
+
+      if (!keyword) {
+        resultsContainer.innerHTML = '<p>请输入搜索关键词。</p>';
+        mainContent.style.display = 'grid';
+        return;
+      }
+
+      mainContent.style.display = 'none';
+      resultsContainer.style.display = 'block';
+      resultsContainer.innerHTML = '<p>正在搜索...</p>';
+
+      try {
+        const response = await fetch(`/api/search_all?keyword=${encodeURIComponent(keyword)}`);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+
+        resultsContainer.innerHTML = '';
+        let hasResults = false;
+
+        if (data.herbs && data.herbs.length > 0) {
+          hasResults = true;
+          const herbsHtml = data.herbs.map(herb => `
+            <div class="herb-card">
+              <div class="herb-info">
+                <div class="herb-name">【方剂】${herb.药剂 || '未知名称'}</div>
+                <div class="herb-desc">功用：${herb.功用 || '暂无描述'}</div>
+                <div class="herb-desc">症状：${herb.症状 || '暂无描述'}</div>
+                <div class="herb-desc">组成：${herb.组成 || '暂无描述'}</div>
+              </div>
+            </div>
+          `).join('');
+          resultsContainer.innerHTML += `<h2>方剂搜索结果</h2><div class="herb-cards">${herbsHtml}</div>`;
+        }
+
+        if (data.medicines && data.medicines.length > 0) {
+          hasResults = true;
+          const medicinesHtml = data.medicines.map(med => `
+            <div class="herb-card">
+              <div class="herb-info">
+                <div class="herb-name">【药材】${med.药材 || '未知名称'} (${med.别名 || '无别名'})</div>
+                <div class="herb-desc">功用：${med.功用 || '暂无描述'}</div>
+                <div class="herb-desc">症状：${med.症状 || '暂无描述'}</div>
+              </div>
+            </div>
+          `).join('');
+          resultsContainer.innerHTML += `<h2>药材搜索结果</h2><div class="herb-cards">${medicinesHtml}</div>`;
+        }
+
+        if (!hasResults) {
+          resultsContainer.innerHTML = '<p>未找到相关结果。</p>';
+        }
+
+      } catch (error) {
+        console.error('搜索失败:', error);
+        resultsContainer.innerHTML = '<p>搜索过程中发生错误，请稍后再试。</p>';
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const searchInput = document.getElementById('searchInput');
+      searchInput.addEventListener('keypress', function(event) {
+        if (event.key === 'Enter') {
+          event.preventDefault();
+          performSearch();
+        }
+      });
+    });
+  </script>
+</head>
+<body>
+  <div class="container">
+    <!-- 顶部导航栏 -->
+    <header class="header">
+      <h1>
+        <img src="https://img.icons8.com/color/32/000000/yin-yang.png" alt="阴阳图标">
+        中医药推荐平台
+      </h1>
+      <nav class="nav-links">
+        <a href="/" class="nav-link active">首页</a>
+        <a href="/药材百科.html" class="nav-link">药材百科</a>
+        <a href="/herbs" class="nav-link">方剂大全</a>
+        <a href="/中医资讯.html" class="nav-link">中医资讯</a>
+        <a href="/assistant" class="nav-link">智能处方推荐</a>
+        <a href="/admin" class="nav-link"><i class="fas fa-cog"></i> 管理后台</a>
+      </nav>
+    </header>
+
+    <!-- 搜索框区域 -->
+    <section class="search-section">
+      <div class="search-content">
+        <div class="search-box">
+          <input type="text" id="searchInput" placeholder="搜索中药材、方剂...">
+          <button onclick="performSearch()">搜索</button>
+        </div>
+        <div class="search-tips">热门搜索：人参、枸杞、针灸、四季养生</div>
+      </div>
+    </section>
+
+    <!-- 搜索结果显示区域 -->
+    <div id="searchResults" style="padding: 30px; display: none;">
+      <!-- 搜索结果将动态加载到这里 -->
+    </div>
+
+    <!-- 主体内容 -->
+    <div class="main-content">
+      <!-- 推荐药材区 -->
+      <div class="herb-cards">
+        <div class="herb-card">
+          <img src="https://img.freepik.com/free-photo/ginseng-root-isolated-white-background_1150-37445.jpg" alt="人参">
+          <div class="herb-info">
+            <div class="herb-name">人参</div>
+            <div class="herb-desc">补气固脱、生津安神，被誉为"百草之王"。</div>
+            <span class="herb-tag">补气</span>
+          </div>
+        </div>
+        <div class="herb-card">
+          <img src="https://img.freepik.com/free-photo/chinese-medicine-herbs-goji-berries_144627-49174.jpg" alt="枸杞">
+          <div class="herb-info">
+            <div class="herb-name">枸杞</div>
+            <div class="herb-desc">滋补肝肾、明目养血，适合长期熬夜人群。</div>
+            <span class="herb-tag">养肝</span>
+          </div>
+        </div>
+        <div class="herb-card">
+          <img src="https://img.freepik.com/free-photo/astragalus-root-chinese-herbal-medicine_144627-49186.jpg" alt="黄芪">
+          <div class="herb-info">
+            <div class="herb-name">黄芪</div>
+            <div class="herb-desc">益气固表、利水消肿，增强免疫力。</div>
+            <span class="herb-tag">固表</span>
+          </div>
+        </div>
+        <div class="herb-card">
+          <img src="https://img.freepik.com/free-photo/dried-licorice-root-isolated-white-background_1150-37451.jpg" alt="甘草">
+          <div class="herb-info">
+            <div class="herb-name">甘草</div>
+            <div class="herb-desc">调和诸药、润肺止咳，中药方剂中的"和事佬"。</div>
+            <span class="herb-tag">调和</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 新闻框架 -->
+      <div class="news-section">
+        <div class="news-header">
+          <h2>中医药资讯</h2>
+          <a href="#">更多 ></a>
+        </div>
+        <div class="news-item">
+          <div class="news-title">国家卫健委发布《中医药振兴发展重大工程实施方案》</div>
+          <div class="news-date">2023-10-15</div>
+        </div>
+        <div class="news-item">
+          <div class="news-title">屠呦呦团队发现青蒿素抗疟新机制</div>
+          <div class="news-date">2023-10-10</div>
+        </div>
+        <div class="news-item">
+          <div class="news-title">冬季养生：三九补一冬，来年无病痛</div>
+          <div class="news-date">2023-10-08</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+
+	<html lang="zh-CN">
+
+	<head>
+
+	    <meta charset="UTF-8">
+
+	    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+	    <title>方剂大全 - 中医药方剂数据库</title>
+
+	    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
+	    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+	    <style>
+
+	        :root {
+
+	            --primary-color: #bbc4b6;  /* 深棕色 */
+
+	            --secondary-color: #212121; /* 中等棕色 */
+
+	            --accent-color: #f7a080;    /* 浅棕色 */
+
+	            --light-color: #686ee6;     /* 浅米色 */
+
+	            --dark-color: #e37364;      /* 深咖啡色 */
+
+	            --text-color: #525252;
+
+	            --white: #000000;
+
+	            --black: #eac3c3;
+
+	            --border-radius: 8px;
+
+	            --border-color: #e0e0e0;
+
+	            --message-ai-bg: #f9f9f9;
+
+	            --button-bg: var(--primary-color);
+
+	            --button-hover: var(--dark-color);
+
+	            --input-bg: #ffffff;
+
+	            --input-text: var(--text-color);
+
+	            --shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+
+	        }
+
+	 
+
+	        * {
+
+	            margin: 0;
+
+	            padding: 0;
+
+	            box-sizing: border-box;
+
+	        }
+
+	 
+
+	        body {
+
+	            font-family: 'Microsoft YaHei', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
+	            line-height: 1.6;
+
+	            color: var(--text-color);
+
+	            background-color: #f9f9f9;
+
+	        }
+
+	 
+
+	        .container {
+
+	            width: 90%;
+
+	            max-width: 1200px;
+
+	            margin: 0 auto;
+
+	            padding: 0 15px;
+
+	        }
+
+	 
+
+	        /* 头部样式 */
+
+	        .header {
+
+	            background-color: var(--primary-color);
+
+	            color: var(--white);
+
+	            padding: 1rem 0;
+
+	            box-shadow: 0 2px 5px rgba(251, 125, 125, 0.1);
+
+	            position: sticky;
+
+	            top: 0;
+
+	            z-index: 100;
+
+	        }
+
+	 
+
+	        .header .container {
+
+	            display: flex;
+
+	            justify-content: space-between;
+
+	            align-items: center;
+
+	            flex-wrap: wrap;
+
+	        }
+
+	 
+
+	        .logo {
+
+	            font-size: 1.8rem;
+
+	            font-weight: 700;
+
+	            color: var(--white);
+
+	        }
+
+	 
+
+	        .search-box {
+
+	            display: flex;
+
+	            margin-top: 0.5rem;
+
+	        }
+
+	 
+
+	        .search-box input {
+
+	            padding: 0.5rem 1rem;
+
+	            border: none;
+
+	            border-radius: 4px 0 0 4px;
+
+	            width: 200px;
+
+	        }
+
+	 
+
+	        .search-box button {
+
+	            padding: 0.5rem 1rem;
+
+	            background-color: var(--secondary-color);
+
+	            color: var(--accent-color);
+
+	            border: none;
+
+	            border-radius: 0 4px 4px 0;
+
+	            cursor: pointer;
+
+	        }
+
+	 
+
+	        .search-box button:hover {
+
+	            background-color: var(--dark-color);
+
+	        }
+
+	 
+
+	        /* 导航按钮 */
+
+	        .nav-buttons {
+
+	            display: flex;
+
+	            gap: 15px;
+
+	        }
+
+	 
+
+	        .nav-button {
+
+	            background-color: var(--button-bg);
+
+	            color: white;
+
+	            border: none;
+
+	            padding: 8px 16px;
+
+	            border-radius: var(--border-radius);
+
+	            cursor: pointer;
+
+	            font-size: 0.9rem;
+
+	            transition: background-color 0.2s;
+
+	            text-decoration: none;
+
+	        }
+
+	 
+
+	        .nav-button:hover {
+
+	            background-color: var(--button-hover);
+
+	        }
+
+	 
+
+	        /* 搜索栏样式 */
+
+	        .search-bar-container {
+
+	            display: flex;
+
+	            justify-content: center;
+
+	            width: 100%;
+
+	            margin: 20px 0 30px;
+
+	        }
+
+	 
+
+	        .search-bar {
+
+	            display: flex;
+
+	            max-width: 600px;
+
+	            width: 100%;
+
+	        }
+
+	 
+
+	        .search-input {
+
+	            flex: 1;
+
+	            padding: 10px 15px;
+
+	            border: 1px solid var(--border-color);
+
+	            border-radius: var(--border-radius) 0 0 var(--border-radius);
+
+	            background-color: var(--input-bg);
+
+	            color: var(--input-text);
+
+	        }
+
+	 
+
+	        .search-button {
+
+	            background-color: var(--button-bg);
+
+	            color: white;
+
+	            border: none;
+
+	            padding: 0 20px;
+
+	            border-radius: 0 var(--border-radius) var(--border-radius) 0;
+
+	            cursor: pointer;
+
+	        }
+
+	 
+
+	        /* 分类标签 */
+
+	        .categories {
+
+	            display: flex;
+
+	            flex-wrap: wrap;
+
+	            gap: 10px;
+
+	            margin-bottom: 20px;
+
+	            justify-content: center;
+
+	        }
+
+	 
+
+	        .category {
+
+	            background-color: var(--input-bg);
+
+	            padding: 5px 12px;
+
+	            border-radius: 20px;
+
+	            font-size: 0.9rem;
+
+	            cursor: pointer;
+
+	        }
+
+	 
+
+	        .category:hover {
+
+	            background-color: var(--button-bg);
+
+	        }
+
+	 
+
+	        /* 方剂卡片 */
+
+	        .herbs-container {
+
+	            max-width: 1200px;
+
+	            margin: 0 auto;
+
+	            padding: 20px;
+
+	        }
+
+	 
+
+	        .herbs-grid {
+
+	            display: grid;
+
+	            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+
+	            gap: 20px;
+
+	            margin-top: 30px;
+
+	        }
+
+	 
+
+	        .herb-card {
+
+	            background-color: var(--message-ai-bg);
+
+	            border-radius: var(--border-radius);
+
+	            padding: 20px;
+
+	            box-shadow: var(--shadow);
+
+	        }
+
+	 
+
+	        .herb-card h3 {
+
+	            margin-bottom: 10px;
+
+	            color: var(--text-color);
+
+	            border-bottom: 1px solid var(--border-color);
+
+	            padding-bottom: 8px;
+
+	        }
+
+	 
+
+	        .herb-property {
+
+	            margin-bottom: 8px;
+
+	        }
+
+	 
+
+	        .property-name {
+
+	            font-weight: bold;
+
+	            color: var(--button-bg);
+
+	        }
+
+	 
+
+	        /* 响应式设计 */
+
+	        @media (max-width: 768px) {
+
+	            .herbs-grid {
+
+	                grid-template-columns: 1fr;
+
+	            }
+
+	 
+
+	            .nav-buttons {
+
+	                position: static;
+
+	                justify-content: center;
+
+	                margin-bottom: 20px;
+
+	            }
+
+	 
+
+	            .search-bar-container {
+
+	                margin: 10px 0;
+
+	            }
+
+	 
+
+	            .search-bar {
+
+	                flex-direction: column;
+
+	                width: 90%;
+
+	            }
+
+	 
+
+	            .search-input {
+
+	                border-radius: var(--border-radius);
+
+	                margin-bottom: 10px;
+
+	            }
+
+	 
+
+	            .search-button {
+
+	                border-radius: var(--border-radius);
+
+	                padding: 10px;
+
+	            }
+
+	        }
+
+	    </style>
+
+	</head>
+
+	<body>
+
+	    <header class="header">
+
+	        <div class="container">
+
+	            <h1 class="logo">方剂大全</h1>
+
+	            <div class="nav-buttons">
+
+	                <a href="/" class="nav-button">主页</a>
+
+	                <a href="/assistant" class="nav-button">智能助手</a>
+
+	                <a href="/knowledge-graph" class="nav-button">方剂知识图谱</a>
+
+	            </div>
+
+	        </div>
+
+	    </header>
+
+	    
+
+	    <div class="herbs-container">
+
+	        <div class="search-bar-container">
+
+	            <div class="search-bar">
+
+	                <input type="text" id="search-input" class="search-input" placeholder="搜索方剂名称、功效或组成...">
+
+	                <button id="search-button" class="search-button">搜索</button>
+
+	            </div>
+
+	        </div>
+
+	        
+
+	        <div class="categories">
+
+	            <div class="category" data-category="解表">解表剂</div>
+
+	            <div class="category" data-category="清热">清热剂</div>
+
+	            <div class="category" data-category="泻下">泻下剂</div>
+
+	            <div class="category" data-category="祛湿">祛湿剂</div>
+
+	            <div class="category" data-category="温里">温里剂</div>
+
+	            <div class="category" data-category="理气">理气剂</div>
+
+	            <div class="category" data-category="消导">消导剂</div>
+
+	            <div class="category" data-category="补益">补益剂</div>
+
+	        </div>
+
+	        
+
+	        <div id="herbs-grid" class="herbs-grid">
+
+	            <!-- 方剂卡片将通过JavaScript动态加载 -->
+
+	            <div id="loading-indicator" style="text-align: center; width: 100%; padding: 20px;">加载中...</div>
+
+	        </div>
+
+	    </div>
+
+	    
+
+	    <script>
+
+	        // 页面加载完成后执行
+
+	        document.addEventListener('DOMContentLoaded', function() {
+
+	            // 获取DOM元素
+
+	            const herbsGrid = document.getElementById('herbs-grid');
+
+	            const searchInput = document.getElementById('search-input');
+
+	            const searchButton = document.getElementById('search-button');
+
+	            const categories = document.querySelectorAll('.category');
+
+	            const loadingIndicator = document.getElementById('loading-indicator');
+
+	            
+
+	            // 加载所有方剂
+
+	            loadAllHerbs();
+
+	            
+
+	            // 搜索按钮点击事件
+
+	            searchButton.addEventListener('click', function() {
+
+	                const keyword = searchInput.value.trim();
+
+	                if (keyword) {
+
+	                    searchHerbs(keyword);
+
+	                } else {
+
+	                    loadAllHerbs();
+
+	                }
+
+	            });
+
+	            
+
+	            // 回车键搜索
+
+	            searchInput.addEventListener('keypress', function(e) {
+
+	                if (e.key === 'Enter') {
+
+	                    const keyword = searchInput.value.trim();
+
+	                    if (keyword) {
+
+	                        searchHerbs(keyword);
+
+	                    } else {
+
+	                        loadAllHerbs();
+
+	                    }
+
+	                }
+
+	            });
+
+	            
+
+	            // 分类点击事件
+
+	            categories.forEach(category => {
+
+	                category.addEventListener('click', function() {
+
+	                    const categoryName = this.getAttribute('data-category');
+
+	                    loadHerbsByCategory(categoryName);
+
+	                });
+
+	            });
+
+	            
+
+	            // 加载所有方剂
+
+	            function loadAllHerbs() {
+
+	                showLoading();
+
+	                axios.get('/api/herbs')
+
+	                    .then(response => {
+
+	                        renderHerbs(response.data);
+
+	                    })
+
+	                    .catch(error => {
+
+	                        console.error('获取方剂数据失败:', error);
+
+	                        herbsGrid.innerHTML = '<div style="text-align: center; width: 100%;">获取数据失败，请稍后再试</div>';
+
+	                    })
+
+	                    .finally(() => {
+
+	                        hideLoading();
+
+	                    });
+
+	            }
+
+	            
+
+	            // 搜索方剂
+
+	            function searchHerbs(keyword) {
+
+	                showLoading();
+
+	                axios.get(`/api/herbs/search?keyword=${encodeURIComponent(keyword)}`)
+
+	                    .then(response => {
+
+	                        renderHerbs(response.data);
+
+	                    })
+
+	                    .catch(error => {
+
+	                        console.error('搜索方剂失败:', error);
+
+	                        herbsGrid.innerHTML = '<div style="text-align: center; width: 100%;">搜索失败，请稍后再试</div>';
+
+	                    })
+
+	                    .finally(() => {
+
+	                        hideLoading();
+
+	                    });
+
+	            }
+
+	            
+
+	            // 按分类加载方剂
+
+	            function loadHerbsByCategory(category) {
+
+	                showLoading();
+
+	                axios.get(`/api/herbs/category?category=${encodeURIComponent(category)}`)
+
+	                    .then(response => {
+
+	                        renderHerbs(response.data);
+
+	                    })
+
+	                    .catch(error => {
+
+	                        console.error('按分类获取方剂失败:', error);
+
+	                        herbsGrid.innerHTML = '<div style="text-align: center; width: 100%;">获取数据失败，请稍后再试</div>';
+
+	                    })
+
+	                    .finally(() => {
+
+	                        hideLoading();
+
+	                    });
+
+	            }
+
+	            
+
+	            // 渲染方剂数据
+
+	            function renderHerbs(herbs) {
+
+	                // 清空现有内容
+
+	                herbsGrid.innerHTML = '';
+
+	                
+
+	                if (herbs.length === 0) {
+
+	                    herbsGrid.innerHTML = '<div style="text-align: center; width: 100%;">没有找到匹配的方剂</div>';
+
+	                    return;
+
+	                }
+
+	                
+
+	                // 遍历方剂数据并创建卡片
+
+	                herbs.forEach(herb => {
+
+	                    const herbCard = document.createElement('div');
+
+	                    herbCard.className = 'herb-card';
+
+	                    
+
+	                    // 方剂名称
+
+	                    const herbName = document.createElement('h3');
+
+	                    herbName.textContent = herb.药剂 || '未知方剂';
+
+	                    herbCard.appendChild(herbName);
+
+	                    
+
+	                    // 组成
+
+	                    if (herb.组成) {
+
+	                        const composition = document.createElement('div');
+
+	                        composition.className = 'herb-property';
+
+	                        composition.innerHTML = `<span class="property-name">组成：</span><span>${herb.组成}</span>`;
+
+	                        herbCard.appendChild(composition);
+
+	                    }
+
+	                    
+
+	                    // 功效
+
+	                    if (herb.功用) {
+
+	                        const effect = document.createElement('div');
+
+	                        effect.className = 'herb-property';
+
+	                        effect.innerHTML = `<span class="property-name">功效：</span><span>${herb.功用}</span>`;
+
+	                        herbCard.appendChild(effect);
+
+	                    }
+
+	                    
+
+	                    // 主治
+
+	                    if (herb.症状) {
+
+	                        const indication = document.createElement('div');
+
+	                        indication.className = 'herb-property';
+
+	                        indication.innerHTML = `<span class="property-name">主治：</span><span>${herb.症状}</span>`;
+
+	                        herbCard.appendChild(indication);
+
+	                    }
+
+	                    
+
+	                    // 用法用量
+
+	                    if (herb.用法用量 && herb.用法用量 !== '尚不明确') {
+
+	                        const usage = document.createElement('div');
+
+	                        usage.className = 'herb-property';
+
+	                        usage.innerHTML = `<span class="property-name">用法用量：</span><span>${herb.用法用量}</span>`;
+
+	                        herbCard.appendChild(usage);
+
+	                    }
+
+	                    
+
+	                    // 注意事项
+
+	                    if (herb.注意事项 && herb.注意事项 !== '尚不明确') {
+
+	                        const caution = document.createElement('div');
+
+	                        caution.className = 'herb-property';
+
+	                        caution.innerHTML = `<span class="property-name">注意事项：</span><span>${herb.注意事项}</span>`;
+
+	                        herbCard.appendChild(caution);
+
+	                    }
+
+	                    
+
+	                    // 出处
+
+	                    if (herb.古籍 && herb.古籍 !== '尚不明确') {
+
+	                        const source = document.createElement('div');
+
+	                        source.className = 'herb-property';
+
+	                        source.innerHTML = `<span class="property-name">出处：</span><span>${herb.古籍}</span>`;
+
+	                        herbCard.appendChild(source);
+
+	                    }
+
+	                    
+
+	                    herbsGrid.appendChild(herbCard);
+
+	                });
+
+	            }
+
+	            
+
+	            // 显示加载指示器
+
+	            function showLoading() {
+
+	                loadingIndicator.style.display = 'block';
+
+	                herbsGrid.innerHTML = '';
+
+	                herbsGrid.appendChild(loadingIndicator);
+
+	            }
+
+	            
+
+	            // 隐藏加载指示器
+
+	            function hideLoading() {
+
+	                loadingIndicator.style.display = 'none';
+
+	            }
+
+	        });
+
+	    </script>
+
+	</body>
+
+	</html>

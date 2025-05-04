@@ -1,0 +1,1568 @@
+<!DOCTYPE html>
+
+	<html lang="zh-CN">
+
+	<head>
+
+	    <meta charset="UTF-8">
+
+	    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+	    <title>药材百科 - 传统中药知识库</title>
+        <style>
+            /* 基础样式重置 */
+        
+            * {
+        
+                margin: 0;
+        
+                padding: 0;
+        
+                box-sizing: border-box;
+        
+                font-family: 'Segoe UI', 'Microsoft YaHei', Tahoma, Geneva, Verdana, sans-serif;
+        
+            }
+        
+             
+        
+            :root {
+
+--primary-color: #2b5395;  /* 调浅的蓝色 */
+
+--secondary-color: #b4d6f1;  /* 调浅的深蓝 */
+
+--accent-color: #ff6666;  /* 调浅的红色 */
+
+--light-color: #f8f9fa;
+
+--dark-color: #495057;
+
+--text-color: #212529;
+
+--success-color: #51cf66;
+
+--warning-color: #c9a98a;
+
+--border-radius: 16px;  /* 调大圆角 */
+
+--box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);  /* 调大阴影 */
+
+--transition: all 0.4s ease;  /* 调慢过渡效果 */
+
+--font-size-base: 1.2rem;  /* 调大基础字体 */
+
+--hero-height: 500px;  /* 调大英雄区域高度 */
+
+}
+        
+             
+        
+            body {
+        
+                line-height: 1.6;
+        
+                color: var(--text-color);
+        
+                background-color: #f9f9f9;
+        
+            }
+        
+             
+        
+            .container {
+        
+                width: 90%;
+        
+                max-width: 1400px;
+        
+                margin: 0 auto;
+        
+                padding: 2rem 0;
+        
+            }
+        
+             
+        
+            /* 头部样式 */
+        
+            .header {
+        
+                background-color: var(--primary-color);
+        
+                color: rgb(235, 65, 65);
+        
+                padding: 1rem 0;
+        
+                box-shadow: var(--box-shadow);
+        
+                position: sticky;
+        
+                top: 0;
+        
+                z-index: 100;
+        
+            }
+        
+             
+        
+            .header .container {
+        
+                display: flex;
+        
+                justify-content: space-between;
+        
+                align-items: center;
+        
+                flex-wrap: wrap;
+        
+                gap: 1rem;
+        
+            }
+        
+             
+        
+            .logo {
+        
+                font-size: 1.8rem;
+        
+                font-weight: 700;
+        
+                display: flex;
+        
+                align-items: center;
+        
+                gap: 0.5rem;
+        
+                color: white;
+        
+                text-decoration: none;
+        
+            }
+        
+             
+        
+            .logo i {
+        
+                font-size: 1.5rem;
+        
+            }
+        
+             
+        
+            .nav {
+        
+                display: flex;
+        
+                gap: 1.5rem;
+        
+            }
+        
+             
+        
+            .nav-link {
+        
+                color: white;
+        
+                text-decoration: none;
+        
+                font-weight: 500;
+        
+                padding: 0.5rem 0;
+        
+                transition: var(--transition);
+        
+                position: relative;
+        
+                opacity: 0.9;
+        
+            }
+        
+             
+        
+            .nav-link.active,
+        
+            .nav-link:hover {
+        
+                opacity: 1;
+        
+            }
+        
+             
+        
+            .nav-link.active::after,
+        
+            .nav-link:hover::after {
+        
+                content: '';
+        
+                position: absolute;
+        
+                bottom: 0;
+        
+                left: 0;
+        
+                width: 100%;
+        
+                height: 2px;
+        
+                background-color: var(--secondary-color);
+        
+                animation: underline 0.3s ease-out;
+        
+            }
+        
+             
+        
+            @keyframes underline {
+        
+                from { width: 0; }
+        
+                to { width: 100%; }
+        
+            }
+        
+             
+        
+            .search-box {
+        
+                display: flex;
+        
+                background-color: white;
+        
+                border-radius: var(--border-radius);
+        
+                overflow: hidden;
+        
+                box-shadow: var(--box-shadow);
+        
+            }
+        
+             
+        
+            .search-box.full-width {
+        
+                width: 100%;
+        
+                max-width: 600px;
+        
+                margin: 0 auto;
+        
+            }
+        
+             
+        
+            .search-box input {
+        
+                padding: 0.5rem 1rem;
+        
+                border: none;
+        
+                outline: none;
+        
+                width: 100%;
+        
+                transition: var(--transition);
+        
+            }
+        
+             
+        
+            .search-box button {
+        
+                background-color: var(--secondary-color);
+        
+                color: white;
+        
+                border: none;
+        
+                padding: 0.5rem 1rem;
+        
+                cursor: pointer;
+        
+                transition: var(--transition);
+        
+                display: flex;
+        
+                align-items: center;
+        
+                gap: 0.5rem;
+        
+            }
+        
+             
+        
+            .search-box button:hover {
+        
+                background-color: #2980b9;
+        
+            }
+        
+             
+        
+            /* 选项卡内容 */
+        
+            .tab-content {
+        
+                display: none;
+        
+                padding: 3rem 0;
+        
+                animation: fadeIn 0.5s ease-out;
+        
+            }
+        
+             
+        
+            .tab-content.active {
+        
+                display: block;
+        
+            }
+        
+             
+        
+            @keyframes fadeIn {
+        
+                from { opacity: 0; transform: translateY(20px); }
+        
+                to { opacity: 1; transform: translateY(0); }
+        
+            }
+        
+             
+        
+            /* 药材分类 */
+        
+            .filter-bar {
+
+display: flex;
+
+flex-direction: column;
+
+gap: 15px;
+
+margin-bottom: 20px;
+
+padding: 15px;
+
+background-color: #ffffff;
+
+border-radius: 5px;
+
+}
+
+
+
+.filter-header {
+
+margin-bottom: 10px;
+
+}
+
+
+
+.filter-group {
+
+display: flex;
+
+align-items: center;
+
+gap: 10px;
+
+}
+
+
+
+.filter-options {
+
+flex-grow: 1;
+
+}
+
+
+
+select {
+
+width: 100%;
+
+padding: 8px;
+
+border: 1px solid #ddd;
+
+border-radius: 4px;
+
+}
+    .filter-actions {
+
+        display: flex;
+
+        justify-content: flex-end;
+
+        margin-top: 10px;
+
+    }
+
+
+            .btn-reset {
+
+                background-color: #f1f3f5;
+
+                border: 1px solid #ddd;
+
+                padding: 0.5rem 1rem;
+
+                border-radius: var(--border-radius);
+
+                cursor: pointer;
+
+                transition: var(--transition);
+
+                font-size: 0.9rem;
+
+                display: inline-flex;
+
+                align-items: center;
+
+                gap: 0.5rem;
+
+            }
+
+
+
+            .btn-reset:hover {
+
+                background-color: #e9ecef;
+
+            }
+
+
+    .categories-grid {
+
+        display: grid;
+
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+
+        gap: 2rem;
+
+        width: 85%;
+
+        margin: 0 auto; /* 水平居中 */
+
+    }
+
+
+            .category-card {
+
+                background-color: white;
+
+                border-radius: var(--border-radius);
+
+                overflow: hidden;
+
+                box-shadow: var(--box-shadow);
+
+                transition: var(--transition);
+
+                position: relative;
+
+                overflow: hidden;
+
+                border: 1px solid rgba(0, 0, 0, 0.05);
+
+                display: flex;
+
+                flex-direction: column;
+
+                height: 100%;
+
+                padding: 1rem;
+
+            }
+
+
+
+            .category-card::before {
+
+                content: '';
+
+                position: absolute;
+
+                top: 0;
+
+                left: 0;
+
+                width: 100%;
+
+                height: 5px;
+
+                background-color: var(--secondary-color);
+
+                transform: scaleX(0);
+
+                transform-origin: left;
+
+                transition: transform 0.5s ease;
+
+            }
+
+
+
+            .category-card:hover {
+
+                transform: translateY(-10px);
+
+                box-shadow: 0 15px 30px rgba(0, 0, 0, 0.12);
+
+            }
+
+
+
+            .category-card:hover::before {
+
+                transform: scaleX(1);
+
+            }
+
+
+
+            .category-card img {
+
+                width: 100%;
+
+                height: 180px;
+
+                object-fit: cover;
+
+                transition: var(--transition);
+
+            }
+
+
+
+            .category-card:hover img {
+
+                transform: scale(1.05);
+
+            }
+
+
+
+            .category-card h4 {
+
+                font-size: 1.5rem;
+
+                color: var(--primary-color);
+
+                margin-bottom: 0.8rem;
+
+                text-align: center;
+
+            }
+
+
+
+            .category-card .card-info {
+
+                margin-top: auto;
+
+                font-size: 0.9rem;
+
+                color: #666;
+
+                border-top: 1px dashed #eee;
+
+                padding-top: 0.8rem;
+
+            }
+
+
+
+            .card-info p {
+
+                margin: 0.3rem 0;
+
+            }
+
+
+
+            .detail-link {
+
+                display: block;
+
+                text-align: center;
+
+                margin-top: 1rem;
+
+                padding: 0.5rem;
+
+                background-color: var(--secondary-color);
+
+                color: white;
+
+                border-radius: var(--border-radius);
+
+                text-decoration: none;
+
+                font-weight: 500;
+
+                transition: var(--transition);
+
+            }
+
+
+
+            .detail-link:hover {
+
+             background-color: #171717;
+
+                transform: translateY(-2px);
+
+            }
+
+
+
+            /* 功效查询样式已移除 */
+
+
+
+
+
+
+
+
+            /* 响应式设计 */
+
+            @media (max-width: 768px) {
+
+                .header .container {
+
+                    flex-direction: column;
+
+                    gap: 1rem;
+
+                }
+
+
+
+                .nav {
+
+                    order: 3;
+
+                    width: 100%;
+
+                    justify-content: center;
+
+                    margin-top: 1rem;
+
+                    flex-wrap: wrap;
+
+                    gap: 0.8rem;
+
+                }
+
+
+
+                .categories-grid {
+
+                    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+
+                }
+
+            }
+
+
+
+            @media (max-width: 480px) {
+
+                .btn {
+
+                    padding: 0.7rem 2rem;
+
+                    font-size: 1rem;
+
+                }
+
+
+
+
+    /* 分类显示框样式 */
+
+    .category-results {
+
+        margin-top: 10px;
+
+        padding: 15px;
+
+        border: 1px solid #ddd;
+
+        border-radius: 4px;
+
+        background-color: #fff;
+
+        min-height: 100px; /* 设置一个最小高度，以便在没有结果时也有一定的显示区域 */
+
+    }
+
+        
+            }
+            
+            /* 药材列表样式 */
+            .medicines-list ul {
+                list-style: none;
+                padding: 0;
+                margin: 1rem 0;
+            }
+            
+            .medicines-list li {
+                padding: 1rem;
+                margin-bottom: 1rem;
+                background-color: #f9f9f9;
+                border-radius: var(--border-radius);
+                transition: var(--transition);
+                border-left: 3px solid var(--secondary-color);
+            }
+            
+            .medicines-list li:hover {
+                background-color: #f0f0f0;
+                transform: translateX(5px);
+            }
+            
+            .medicines-list li strong {
+                display: block;
+                font-size: 1.2rem;
+                color: var(--primary-color);
+                margin-bottom: 0.5rem;
+            }
+            
+            .medicines-list li span {
+                display: block;
+                font-size: 0.9rem;
+                color: #666;
+                margin-bottom: 0.5rem;
+            }
+            
+            .medicines-list li p {
+                margin: 0.5rem 0;
+                padding: 0;
+                font-size: 0.95rem;
+            }
+            
+            .medicines-list li p.intro {
+                font-style: italic;
+                border-top: 1px dashed #ddd;
+                padding-top: 0.5rem;
+                margin-top: 0.5rem;
+                color: #555;
+            }
+            
+            /* 加载状态 */
+            .loading {
+                text-align: center;
+                padding: 2rem;
+                color: #666;
+                font-style: italic;
+            }
+            
+            .no-results {
+                text-align: center;
+                padding: 2rem;
+                color: #666;
+                font-style: italic;
+                background-color: #f9f9f9;
+                border-radius: var(--border-radius);
+                border: 1px dashed #ddd;
+            }
+            
+            .hint {
+                text-align: center;
+                padding: 1rem;
+                color: #666;
+                font-style: italic;
+            }
+            
+            /* 弹窗样式 */
+            .modal {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.6);
+                z-index: 1000;
+                overflow-y: auto;
+            }
+            
+            .modal-content {
+                position: relative;
+                background-color: white;
+                margin: 50px auto;
+                padding: 0;
+                width: 90%;
+                max-width: 800px;
+                border-radius: var(--border-radius);
+                box-shadow: var(--box-shadow);
+                animation: modalSlideIn 0.4s ease;
+            }
+            
+            @keyframes modalSlideIn {
+                from { transform: translateY(-50px); opacity: 0; }
+                to { transform: translateY(0); opacity: 1; }
+            }
+            
+            .modal-header {
+                padding: 1.5rem;
+                border-bottom: 1px solid #eee;
+               background-color: #f8f3f3;
+                color: #ffffff;
+                border-top-left-radius: var(--border-radius);
+                border-top-right-radius: var(--border-radius);
+            }
+            .modal-header h2{
+                 background-color: #f8f3f3;
+                 border-top-left-radius: var(--border-radius);
+                border-top-right-radius: var(--border-radius);
+
+            }
+            .modal-body {
+                padding: 1.5rem;
+                max-height: 70vh;
+                overflow-y: auto;
+                 border-top-left-radius: var(--border-radius);
+                border-top-right-radius: var(--border-radius);
+            }
+            
+            .close-modal {
+                position: absolute;
+                top: 10px;
+                right: 15px;
+                color: white;
+                font-size: 1.8rem;
+                font-weight: bold;
+                cursor: pointer;
+            }
+            
+            .medicine-detail {
+                display: grid;
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+            
+            .medicine-detail h2 {
+                color: var(--primary-color);
+                margin-bottom: 1rem;
+                font-size: 2rem;
+                text-align: center;
+            }
+    .medicine-detail-section {
+
+           background-color: #f8f3f3;
+                padding: 1rem;
+                border-radius: var(--border-radius);
+                margin-bottom: 1.5rem;
+                border-top-left-radius: var(--border-radius);
+                border-top-right-radius: var(--border-radius);
+
+    }
+            .medicine-detail-section:last-child {
+                border-bottom: none;
+            }
+            
+            .medicine-detail-section h3 {
+                color: var(--primary-color);
+                margin-bottom: 0.8rem;
+                font-size: 1.3rem;
+
+            }
+            
+            .medicine-detail-section p {
+                color: #333;
+                line-height: 1.7;
+
+            }
+            
+            .medicine-meta {
+                background-color: #f8f3f3;
+                padding: 1rem;
+                border-radius: var(--border-radius);
+                margin-bottom: 1.5rem;
+                border-top-left-radius: var(--border-radius);
+                border-top-right-radius: var(--border-radius);
+            }
+            
+            .medicine-meta dl {
+                display: grid;
+                grid-template-columns: 1fr 3fr;
+                gap: 0.5rem;
+            }
+            
+            .medicine-meta dt {
+                color: var(--primary-color);
+                font-weight: 600;
+            }
+            
+            .medicine-meta dd {
+                margin: 0;
+            }
+        </style>
+
+	    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+	</head>
+
+	<body>
+
+	    <header class="header">
+
+	        <div class="container">
+
+	            <h1 class="logo"><i class="fas fa-herb"></i> 药材百科</h1>
+
+	            <nav class="nav">
+
+	                <a href="/" class="nav-link">主页</a>
+	                <a href="#" class="nav-link" data-tab="categories">药材分类</a>
+
+
+	            </nav>
+
+	            <div class="search-box">
+
+	                <input type="text" placeholder="搜索药材...">
+
+	                <button><i class="fas fa-search"></i></button>
+
+	            </div>
+
+	        </div>
+
+	    </header>
+
+
+    <main class="main-content">
+
+        <!-- 药材分类选项卡 -->
+
+        <section class="tab-content active" id="categories">
+
+            <div class="container">
+
+                <div class="filter-bar">
+
+                    <div class="filter-header">
+
+                        <h4>条件筛选</h4>
+
+                    </div>
+
+
+
+                    <div class="filter-group">
+
+                        <label for="usage-filter">按用法分类:</label>
+
+                        <div class="filter-options">
+
+                            <select id="usage-filter">
+
+                                <option value="all">全部</option>
+
+                                <option value="内服">内服</option>
+
+                                <option value="外用">外用</option>
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <div class="filter-actions" style="display: flex; justify-content: flex-end; margin-top: 10px;">
+
+                        <button id="filter-reset" class="btn-reset">
+
+                            <i class="fas fa-sync-alt"></i> 重置
+
+                        </button>
+
+                    </div>
+
+
+
+                    <div class="filter-results">
+
+                        <!-- 结果将通过JavaScript动态加载 -->
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+	                <div class="categories-grid">
+	                    <!-- 药材卡片会通过JavaScript动态加载 -->
+	                    <div class="loading">正在加载药材数据...</div>
+	                    </div>
+
+                    <!-- 药材详情弹窗 -->
+                    <div id="medicine-detail-modal" class="modal">
+                        <div class="modal-content">
+                            <span class="close-modal">&times;</span>
+                            <div class="modal-body">
+                                <!-- 药材详情内容将通过JavaScript动态加载 -->
+	                    </div>
+	                    </div>
+	                    </div>
+	            </div>
+
+
+	 
+
+	        <!-- 功效查询选项卡已移除 -->
+
+	    </main>
+
+	 
+
+	  <script>
+	document.addEventListener('DOMContentLoaded', function() {
+
+	    // 选项卡切换功能
+
+	    const navLinks = document.querySelectorAll('.nav-link[data-tab]');
+
+	    const tabContents = document.querySelectorAll('.tab-content');
+
+	    
+
+	    navLinks.forEach(link => {
+
+	        link.addEventListener('click', function(e) {
+
+	            e.preventDefault();
+
+	            const tabId = this.getAttribute('data-tab');
+
+	            
+
+	            // 更新活动状态
+
+	            navLinks.forEach(l => l.classList.remove('active'));
+
+	            this.classList.add('active');
+
+	            
+
+	            // 显示对应选项卡
+
+	            tabContents.forEach(content => content.classList.remove('active'));
+
+	            document.getElementById(tabId).classList.add('active');
+
+	        });
+
+	    });
+
+	    
+
+	    // 默认显示药材分类选项卡
+
+	    document.querySelector('.nav-link[data-tab="categories"]').click();
+
+	    
+
+	    // 药材分类过滤功能
+
+	    const categoryFilter = document.getElementById('category-filter');
+
+	    const categoryCards = document.querySelectorAll('.category-card');
+
+	    
+
+	    categoryFilter.addEventListener('change', function() {
+
+	        const selectedCategory = this.value;
+
+	        
+
+	        categoryCards.forEach(card => {
+
+	            const cardCategory = card.getAttribute('data-category');
+
+	            
+
+	            if (selectedCategory === 'all' || cardCategory === selectedCategory) {
+
+	                card.style.display = 'block';
+
+	            } else {
+
+	                card.style.display = 'none';
+
+	            }
+
+	        });
+
+	    });
+
+	    
+
+	    // 搜索功能
+
+	    const searchBtn = document.getElementById('search-btn');
+
+	    const effectSearch = document.getElementById('effect-search');
+
+	    const searchResults = document.querySelector('.search-results');
+
+	    
+
+	    // 模拟数据
+
+	    const effectData = {
+
+	        '补血': [
+
+	            { name: '当归', description: '补血活血，调经止痛' },
+
+	            { name: '熟地黄', description: '补血滋阴，益精填髓' },
+
+	            { name: '白芍', description: '养血敛阴，柔肝止痛' }
+
+	        ],
+
+	        '清热': [
+
+	            { name: '金银花', description: '清热解毒，疏散风热' },
+
+	            { name: '连翘', description: '清热解毒，消肿散结' },
+
+	            { name: '黄芩', description: '清热燥湿，泻火解毒' }
+
+	        ],
+
+	        '补气': [
+
+	            { name: '人参', description: '大补元气，复脉固脱' },
+
+	            { name: '黄芪', description: '补气升阳，固表止汗' },
+
+	            { name: '党参', description: '补中益气，生津养血' }
+
+	        ]
+
+	    };
+
+	    
+
+	    searchBtn.addEventListener('click', performSearch);
+
+	    effectSearch.addEventListener('keypress', function(e) {
+
+	        if (e.key === 'Enter') performSearch();
+
+	    });
+
+	    
+
+	    function performSearch() {
+
+	        const query = effectSearch.value.trim().toLowerCase();
+
+	        
+
+	        if (!query) {
+
+	            alert('请输入查询内容');
+
+	            return;
+
+	        }
+
+	        
+
+	        // 清空先前结果
+
+	        searchResults.innerHTML = '';
+
+	        
+
+	        // 查找匹配功效
+
+	        let found = false;
+
+	        for (const [effect, herbs] of Object.entries(effectData)) {
+
+	            if (effect.includes(query)) {
+
+	                found = true;
+
+	                const resultCard = document.createElement('div');
+
+	                resultCard.className = 'result-card';
+
+	                
+
+	                let herbList = `<h4>${effect}药材</h4>
+
+	                                <p>功效：${getEffectDescription(effect)}</p>
+
+	                                <ul>`;
+
+	                
+
+	                herbs.forEach(herb => {
+
+	                    herbList += `<li>${herb.name} - ${herb.description}</li>`;
+
+	                });
+
+	                
+
+	                herbList += '</ul>';
+
+	                resultCard.innerHTML = herbList;
+
+	                searchResults.appendChild(resultCard);
+
+	            }
+
+	        }
+
+	        
+
+	        if (!found) {
+
+	            searchResults.innerHTML = '<p class="no-results">没有找到匹配功效，请尝试其他关键词。</p>';
+
+	        }
+
+	    }
+
+	    
+
+	    function getEffectDescription(effect) {
+
+	        const descriptions = {
+
+	            '补血': '滋补血液，用于血虚证',
+
+	            '清热': '清除热邪，用于热证',
+
+	            '补气': '补益元气，用于气虚证'
+
+	        };
+
+	        return descriptions[effect] || '传统中药功效';
+
+	    }
+
+	    
+
+	    // 药材卡片悬停效果
+
+	    const herbCards = document.querySelectorAll('.category-card');
+
+	    
+
+	    herbCards.forEach(card => {
+
+	        card.addEventListener('mouseenter', function() {
+
+	            this.style.transform = 'translateY(-10px)';
+
+	            this.style.boxShadow = '0 15px 30px rgba(0, 0, 0, 0.15)';
+
+	        });
+
+	        
+
+	        card.addEventListener('mouseleave', function() {
+
+	            this.style.transform = 'translateY(0)';
+
+	            this.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
+
+	        });
+
+	    });
+
+	});
+        
+        // 药材数据加载和展示
+    document.addEventListener('DOMContentLoaded', function() {
+            // 获取DOM元素
+            const usageFilter = document.getElementById('usage-filter');
+            const resetButton = document.getElementById('filter-reset');
+            const categoriesGrid = document.querySelector('.categories-grid');
+            const searchInput = document.querySelector('.search-box input');
+            const searchButton = document.querySelector('.search-box button');
+            const modal = document.getElementById('medicine-detail-modal');
+            const modalBody = modal.querySelector('.modal-body');
+            const closeModal = modal.querySelector('.close-modal');
+            
+            // 存储数据
+            let allMedicines = [];
+            let usageCategories = ['内服', '外用'];
+            let currentFilters = {
+                usage: 'all'
+            };
+            
+            // 初始化加载
+            loadAllMedicines();
+            
+            // 用法分类筛选事件
+            usageFilter.addEventListener('change', function() {
+                currentFilters.usage = this.value;
+                applyFilters();
+            });
+            
+            // 重置按钮事件
+            resetButton.addEventListener('click', function() {
+                currentFilters.usage = 'all';
+                usageFilter.value = 'all';
+                displayAllMedicines(allMedicines);
+            });
+            
+            // 搜索事件
+            searchButton.addEventListener('click', performSearch);
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    performSearch();
+                }
+            });
+            
+            // 功效搜索功能已移除
+            
+            // 弹窗关闭事件
+            closeModal.addEventListener('click', function() {
+                modal.style.display = 'none';
+                document.body.style.overflow = 'auto'; // 恢复滚动
+            });
+            
+            // 点击弹窗外部关闭
+            window.addEventListener('click', function(event) {
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                    document.body.style.overflow = 'auto'; // 恢复滚动
+                }
+            });
+            
+            // 获取所有药材数据
+            function loadAllMedicines() {
+                fetch('/api/medicines')
+                    .then(response => response.json())
+                    .then(data => {
+                        allMedicines = data;
+                        extractFilterOptions(data);
+                        displayAllMedicines(data);
+                    })
+                    .catch(error => console.error('获取药材数据失败:', error));
+            }
+            
+            // 提取筛选选项 - 不再需要从数据中提取，因为已经固定为内服和外用两类
+            function extractFilterOptions(medicines) {
+                // 用法分类已经在HTML中固定设置为内服和外用
+                // 不需要从数据中提取
+            }
+            
+            // 更新筛选器选项函数不再需要，因为选项已经在HTML中固定设置
+            
+            // 应用筛选
+            function applyFilters() {
+                let filteredMedicines = allMedicines;
+                
+                // 应用用法筛选
+                if (currentFilters.usage !== 'all') {
+                    filteredMedicines = filteredMedicines.filter(medicine => {
+                        // 检查用法用量字段是否包含内服或外用
+                        if (medicine.用法用量) {
+                            if (currentFilters.usage === '内服') {
+                                return medicine.用法用量.includes('内服');
+                            } else if (currentFilters.usage === '外用') {
+                                return medicine.用法用量.includes('外用');
+                            }
+                        }
+                        return false;
+                    });
+                }
+                
+                // 显示筛选结果
+                displayAllMedicines(filteredMedicines);
+            }
+            
+            // 搜索药材
+            function performSearch() {
+                const keyword = searchInput.value.trim();
+                if (!keyword) return;
+                
+                fetch(`/api/medicines/search?keyword=${encodeURIComponent(keyword)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.length > 0) {
+                            displayAllMedicines(data);
+                        } else {
+                            categoriesGrid.innerHTML = `<p class="no-results">没有找到"${keyword}"相关的药材</p>`;
+                        }
+                    })
+                    .catch(error => console.error('搜索药材失败:', error));
+            }
+            
+            // 功效搜索功能已移除
+            
+            // 展示所有药材
+            function displayAllMedicines(medicines) {
+                // 清空显示区域
+                categoriesGrid.innerHTML = '';
+                
+                if (medicines.length === 0) {
+                    categoriesGrid.innerHTML = '<p class="no-results">没有找到符合条件的药材</p>';
+                    return;
+                }
+                
+                // 创建药材卡片
+                medicines.forEach(medicine => {
+                    const card = createMedicineCard(medicine);
+                    categoriesGrid.appendChild(card);
+                });
+            }
+            
+            // 功效搜索结果展示功能已移除
+            
+            // 确保模态框关闭按钮正常工作
+            document.querySelector('.close-modal').addEventListener('click', function() {
+                modal.style.display = 'none';
+                document.body.style.overflow = 'auto'; // 恢复背景滚动
+            });
+            
+            // 点击模态框外部关闭
+            window.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    modal.style.display = 'none';
+                    document.body.style.overflow = 'auto'; // 恢复背景滚动
+                }
+            });
+            
+            // 创建药材卡片
+            function createMedicineCard(medicine) {
+                const card = document.createElement('div');
+                card.className = 'category-card';
+                
+                // 筛选显示内容
+                let filterInfo = '';
+                if (currentFilters.usage !== 'all') {
+                    filterInfo += `<p>用法: ${currentFilters.usage}</p>`;
+                }
+                
+                // 如果没有任何筛选条件，显示药材功用简介
+                if (!filterInfo) {
+                    filterInfo = `<p>${medicine.功用 || '暂无功用信息'}</p>`;
+                }
+                
+                card.innerHTML = `
+                    <h4>${medicine.药材}</h4>
+                    <div class="card-info">
+                        ${filterInfo}
+                    </div>
+                    <a href="#" class="detail-link">查看详情</a>
+                `;
+                
+                // 详情链接点击事件
+                const detailLink = card.querySelector('.detail-link');
+                detailLink.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    showMedicineDetail(medicine);
+                });
+                
+                return card;
+            }
+            
+            // 显示药材详情
+            function showMedicineDetail(medicine) {
+                // 构建详情内容
+                const detailHTML = `
+                    <div class="medicine-detail">
+                        <div class="modal-header">
+                            <h2>${medicine.药材}</h2>
+                        </div>
+                        
+                        <div class="medicine-meta">
+                            <dl>
+                                <dt>别名</dt>
+                                <dd>${medicine.别名 || '无'}</dd>
+                                
+                                <dt>性味归经</dt>
+                                <dd>${medicine.性味归经 || '无'}</dd>
+                                
+                                <dt>出处</dt>
+                                <dd>${medicine.古籍 || '无'}</dd>
+                            </dl>
+                        </div>
+                        
+                        <div class="medicine-detail-section" style="background-color: #f0f7ff; border-left: 4px solid var(--primary-color);">
+                            <h3>用法用量</h3>
+                            <p>${medicine.用法用量 || '暂无用法用量信息'}</p>
+                        </div>
+                        
+                        <div class="medicine-detail-section">
+                            <h3>功用</h3>
+                            <p>${medicine.功用 || '暂无功用信息'}</p>
+                        </div>
+                        
+                        <div class="medicine-detail-section">
+                            <h3>症状</h3>
+                            <p>${medicine.症状 || '暂无症状信息'}</p>
+                        </div>
+                        
+                        <div class="medicine-detail-section">
+                            <h3>药材分类</h3>
+                            <p>${medicine.药材分类 || '暂无分类信息'}</p>
+                        </div>
+                        
+                        <!-- 用法用量部分已移至前面显示 -->
+                        
+                        <div class="medicine-detail-section">
+                            <h3>注意事项</h3>
+                            <p>${medicine.注意事项 || '暂无注意事项'}</p>
+                        </div>
+                        
+                        <div class="medicine-detail-section">
+                            <h3>常用药剂</h3>
+                            <p>${listPrescriptions(medicine) || '暂无关联药剂'}</p>
+                        </div>
+                    </div>
+                `;
+                
+                // 更新弹窗内容并显示
+                modalBody.innerHTML = detailHTML;
+                modal.style.display = 'block';
+                document.body.style.overflow = 'hidden'; // 阻止背景滚动
+            }
+            
+            // 列出药材关联的药剂
+            function listPrescriptions(medicine) {
+                const prescriptions = [];
+                for (let i = 1; i <= 10; i++) {
+                    const key = `药剂${i}`;
+                    if (medicine[key] && medicine[key].trim()) {
+                        prescriptions.push(medicine[key]);
+                    }
+                }
+                
+                if (prescriptions.length === 0) return '';
+                
+                return prescriptions.join('、');
+            }
+        });
+      </script>
+
+	</body>
+
+	</html>

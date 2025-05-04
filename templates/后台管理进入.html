@@ -1,0 +1,477 @@
+
+	<!DOCTYPE html>
+
+	<html lang="zh-CN">
+
+	<head>
+
+	    <meta charset="UTF-8">
+
+	    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+	    <title>Admin Login</title>
+
+	<style>
+
+	/* 基础样式重置 */
+
+	* {
+
+	    margin: 0;
+
+	    padding: 0;
+
+	    box-sizing: border-box;
+
+	    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
+	}
+
+	 
+
+	.home-btn {
+
+	    position: absolute;
+
+	    top: 20px;
+
+	    left: 20px;
+
+	    padding: 8px 15px;
+
+	    background: rgba(102, 126, 234, 0.8);
+
+	    color: white;
+
+	    border: none;
+
+	    border-radius: 4px;
+
+	    font-size: 14px;
+
+	    cursor: pointer;
+
+	    display: flex;
+
+	    align-items: center;
+
+	    gap: 5px;
+
+	    text-decoration: none;
+
+	}
+
+	 
+
+	.home-btn:hover {
+
+	    background: rgba(102, 126, 234, 1);
+
+	}
+
+	 
+
+	body {
+
+	    background: rgba(161, 173, 231, 0.3); /* 半透明的浅色背景 */
+
+	    height: 100vh;
+
+	    display: flex;
+
+	    justify-content: center;
+
+	    align-items: center;
+
+	    color: #333;
+
+	    backdrop-filter: blur(5px); /* 可选：添加毛玻璃效果 */
+
+	}
+
+	 
+
+	.login-container {
+
+	    width: 100%;
+
+	    display: flex;
+
+	    justify-content: center;
+
+	    align-items: center;
+
+	    padding: 20px;
+
+	}
+
+	 
+
+	.login-box {
+
+	    background-color: white;
+
+	    border-radius: 12px;
+
+	    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+
+	    width: 100%;
+
+	    max-width: 420px;
+
+	    padding: 40px;
+
+	    animation: fadeIn 0.5s ease-in-out;
+
+	}
+
+	 
+
+	.logo {
+
+	    text-align: center;
+
+	    margin-bottom: 30px;
+
+	}
+
+	 
+
+	.logo i {
+
+	    font-size: 48px;
+
+	    color: #667eea;
+
+	    margin-bottom: 15px;
+
+	}
+
+	 
+
+	.logo h1 {
+
+	    font-size: 24px;
+
+	    font-weight: 600;
+
+	    color: #333;
+
+	}
+
+	 
+
+	.login-form .form-group {
+
+	    position: relative;
+
+	    margin-bottom: 25px;
+
+	}
+
+	 
+
+	.login-form .form-group label {
+
+	    position: absolute;
+
+	    top: 50%;
+
+	    left: 15px;
+
+	    transform: translateY(-50%);
+
+	    color: #666;
+
+	}
+
+	 
+
+	.login-form .form-group i {
+
+	    font-size: 18px;
+
+	}
+
+	 
+
+	.login-form .form-group input {
+
+	    width: 100%;
+
+	    padding: 15px 20px 15px 45px;
+
+	    border: 1px solid #ddd;
+
+	    border-radius: 8px;
+
+	    font-size: 16px;
+
+	    transition: all 0.3s;
+
+	}
+
+	 
+
+	.login-form .form-group input:focus {
+
+	    border-color: #667eea;
+
+	    outline: none;
+
+	    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+
+	}
+
+	 
+
+	.form-options {
+
+	    display: flex;
+
+	    justify-content: space-between;
+
+	    align-items: center;
+
+	    margin-bottom: 25px;
+
+	    font-size: 14px;
+
+	}
+
+	 
+
+	.remember-me {
+
+	    display: flex;
+
+	    align-items: center;
+
+	    cursor: pointer;
+
+	    color: #666;
+
+	}
+
+	 
+
+	.remember-me input {
+
+	    margin-right: 8px;
+
+	}
+
+	 
+
+	.forgot-password {
+
+	    color: #667eea;
+
+	    text-decoration: none;
+
+	    transition: color 0.3s;
+
+	}
+
+	 
+
+	.forgot-password:hover {
+
+	    color: #764ba2;
+
+	}
+
+	 
+
+	.login-btn {
+
+	    width: 100%;
+
+	    padding: 15px;
+
+	    background: linear-gradient(to right, #94a4ee, #debcff);
+
+	    border: none;
+
+	    border-radius: 8px;
+
+	    color: white;
+
+	    font-size: 16px;
+
+	    font-weight: 600;
+
+	    cursor: pointer;
+
+	    transition: all 0.3s;
+
+	    text-transform: uppercase;
+
+	    letter-spacing: 1px;
+
+	}
+
+	 
+
+	.login-btn:hover {
+
+	    background: linear-gradient(to right, #f4eafe, #92a1e3);
+
+	    transform: translateY(-2px);
+
+	    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+
+	}
+
+	 
+
+	.login-footer {
+
+	    margin-top: 30px;
+
+	    text-align: center;
+
+	    font-size: 12px;
+
+	    color: #999;
+
+	}
+
+	 
+
+	/* 动画效果 */
+
+	@keyframes fadeIn {
+
+	    from {
+
+	        opacity: 0;
+
+	        transform: translateY(20px);
+
+	    }
+
+	    to {
+
+	        opacity: 1;
+
+	        transform: translateY(0);
+
+	    }
+
+	}
+
+	 
+
+	/* 响应式设计 */
+
+	@media (max-width: 480px) {
+
+	    .login-box {
+
+	        padding: 30px 20px;
+
+	    }
+
+	    
+
+	    .logo h1 {
+
+	        font-size: 20px;
+
+	    }
+
+	}
+    </style>
+
+	    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+	</head>
+
+	<body>
+	    <a href="/" class="home-btn">
+	        <i class="fas fa-home"></i> 返回首页
+	    </a>
+
+	    <div class="login-container">
+
+	        <div class="login-box">
+
+	            <div class="logo">
+
+	                <i class="fas fa-shield-alt"></i>
+
+	                <h1>登录</h1>
+
+	            </div>
+
+	            {% if error %}
+	            <div class="alert error">
+	                <i class="fas fa-exclamation-circle"></i>
+	                <span>{{ error }}</span>
+	            </div>
+	            {% endif %}
+
+	            <form id="loginForm" class="login-form" action="/login" method="POST">
+
+	                <div class="form-group">
+
+	                    <label for="username"><i class="fas fa-user"></i></label>
+
+	                    <input type="text" id="username" name="username" placeholder="用户名" required>
+
+	                </div>
+
+	                <div class="form-group">
+
+	                    <label for="password"><i class="fas fa-lock"></i></label>
+
+	                    <input type="password" id="password" name="password" placeholder="密码" required>
+
+	                </div>
+
+	                <div class="form-options">
+	                </div>
+
+	                <button type="submit" class="login-btn">登录</button>
+
+	            </form>
+	        </div>
+
+	    </div>
+
+	    <script >
+    // 仅保留基本的表单验证
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+        
+        if (!username || !password) {
+            e.preventDefault();
+            showError('请输入用户名和密码');
+        }
+    });
+ 
+    function showError(message) {
+        const existingAlert = document.querySelector('.alert');
+        if (existingAlert) existingAlert.remove();
+        
+        const alert = document.createElement('div');
+        alert.className = 'alert error';
+        alert.innerHTML = `
+            <i class="fas fa-exclamation-circle"></i>
+            <span>${message}</span>
+        `;
+        
+        document.querySelector('.login-box').insertBefore(alert, document.querySelector('.logo').nextSibling);
+        
+        setTimeout(() => {
+            alert.style.opacity = '0';
+            setTimeout(() => alert.remove(), 300);
+        }, 3000);
+    }
+        </script>
+
+	</body>
+
+	</html>

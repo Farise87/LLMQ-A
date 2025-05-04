@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>中医知识图谱 - 现代科技平台</title>
+    <link rel="stylesheet" href="/static/styles.css"> <!-- Keep general styles if needed -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        :root {
+            --deep-space-blue-start: #0f0c29;
+            --deep-space-blue-mid: #302b63;
+            --deep-space-blue-end: #24243e;
+            --fluorescent-cyan: #00ffff;
+            --fluorescent-magenta: #ff00ff;
+            --fluorescent-lime: #ccff00;
+            --text-light: #e0e0e0;
+            --card-bg: rgba(30, 30, 60, 0.85);
+            --border-glow: rgba(0, 255, 255, 0.5);
+            --shadow-glow: 0 0 15px rgba(0, 255, 255, 0.4);
+            --border-radius-modern: 8px;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, var(--deep-space-blue-start), var(--deep-space-blue-mid), var(--deep-space-blue-end));
+            color: var(--text-light);
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            overflow: hidden; /* Prevent body scrollbars */
+            min-height: 100vh;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            width: 100%;
+            padding: 0; /* Remove default padding if any */
+            margin: 0;
+            position: relative; /* Needed for absolute positioning of children */
+        }
+
+        /* Top Search Bar */
+        .top-search-container {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50%;
+            max-width: 600px;
+            display: flex;
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius-modern);
+            box-shadow: var(--shadow-glow);
+            border: 1px solid var(--border-glow);
+            z-index: 20;
+            padding: 5px;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 10px 15px;
+            border-radius: var(--border-radius-modern) 0 0 var(--border-radius-modern);
+            border: none;
+            background-color: transparent;
+            color: var(--text-light);
+            font-size: 16px;
+            outline: none;
+        }
+        .search-input::placeholder {
+            color: rgba(224, 224, 224, 0.6);
+        }
+
+        .search-button {
+            background-color: var(--fluorescent-cyan);
+            color: var(--deep-space-blue-start);
+            border: none;
+            padding: 10px 15px;
+            border-radius: 0 var(--border-radius-modern) var(--border-radius-modern) 0;
+            cursor: pointer;
+            transition: background-color 0.3s, box-shadow 0.3s;
+            font-weight: bold;
+        }
+
+        .search-button:hover {
+            background-color: var(--fluorescent-magenta);
+            box-shadow: 0 0 10px var(--fluorescent-magenta);
+        }
+
+        /* Graph Container */
+        .graph-container {
+            flex-grow: 1; /* Takes remaining space */
+            width: 100%;
+            position: relative; /* For positioning elements inside */
+            overflow: hidden; /* Ensure SVG fits */
+        }
+
+        /* Right Floating Info Card (was node-tooltip) */
+        .info-card {
+            position: absolute;
+            top: 80px; /* Below search bar */
+            right: 20px;
+            width: 300px;
+            max-height: calc(100vh - 160px); /* Adjust based on top/bottom elements */
+            background-color: var(--card-bg);
+            color: var(--text-light);
+            border-radius: var(--border-radius-modern);
+            border: 1px solid var(--border-glow);
+            box-shadow: var(--shadow-glow);
+            padding: 15px;
+            pointer-events: auto; /* Allow interaction if needed */
+            font-size: 14px;
+            z-index: 15;
+            visibility: hidden; /* Initially hidden */
+            opacity: 0;
+            transition: opacity 0.3s, visibility 0.3s;
+            overflow-y: auto;
+        }
+        .info-card.visible {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .info-card-title {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 10px;
+            border-bottom: 1px solid var(--border-glow);
+            padding-bottom: 5px;
+            color: var(--fluorescent-cyan);
+        }
+
+        .info-card-content .tooltip-property { /* Reusing tooltip structure */
+            display: flex;
+            margin-top: 5px;
+        }
+
+        .info-card-content .tooltip-key {
+            font-weight: bold;
+            margin-right: 8px;
+            color: rgba(224, 224, 224, 0.7);
+            min-width: 60px; /* Align values */
+        }
+
+        .info-card-content .tooltip-value {
+            word-break: break-word;
+        }
+
+        /* Bottom Data Panel */
+        .bottom-data-panel {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            max-width: 800px;
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius-modern) var(--border-radius-modern) 0 0;
+            box-shadow: var(--shadow-glow);
+            border: 1px solid var(--border-glow);
+            border-bottom: none;
+            padding: 10px 20px;
+            z-index: 20;
+            text-align: center;
+            font-size: 14px;
+            color: var(--text-light);
+        }
+
+        /* Graph Elements Styling */
+        .links line {
+            stroke: var(--fluorescent-cyan);
+            stroke-opacity: 0.6;
+            stroke-width: 1.5px;
+        }
+
+        .link-labels text {
+            fill: var(--text-light);
+            font-size: 10px;
+            text-shadow: 0 0 3px var(--deep-space-blue-start);
+        }
+
+        .nodes circle {
+            stroke: var(--border-glow);
+            stroke-width: 1.5px;
+            /* Simple particle effect using shadow */
+            filter: drop-shadow(0 0 3px var(--fluorescent-lime));
+        }
+
+        .node-labels text {
+            fill: var(--text-light);
+            font-size: 12px;
+            text-shadow: 0 0 5px var(--deep-space-blue-start);
+            pointer-events: none; /* Prevent text blocking node events */
+        }
+
+        /* Arrowhead */
+        #arrowhead path {
+            fill: var(--fluorescent-cyan);
+        }
+
+        /* Controls (Load button, Legend) - Repositioned or removed */
+        .graph-controls {
+            /* display: none; */ /* Hide old controls or repurpose */
+            position: absolute;
+            top: 80px;
+            left: 20px;
+            background-color: var(--card-bg);
+            padding: 15px;
+            border-radius: var(--border-radius-modern);
+            box-shadow: var(--shadow-glow);
+            border: 1px solid var(--border-glow);
+            z-index: 10;
+            max-width: 250px;
+        }
+
+        .graph-controls h3 {
+             margin-top: 0; margin-bottom: 15px; color: var(--fluorescent-cyan);
+        }
+
+        .load-button {
+            background-color: var(--fluorescent-cyan);
+            color: var(--deep-space-blue-start);
+            border: none;
+            padding: 10px 15px;
+            border-radius: var(--border-radius-modern);
+            cursor: pointer;
+            transition: background-color 0.3s, box-shadow 0.3s;
+            font-weight: bold;
+            width: 100%;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        .load-button:hover {
+            background-color: var(--fluorescent-magenta);
+            box-shadow: 0 0 10px var(--fluorescent-magenta);
+        }
+
+        .graph-legend {
+            margin-top: 15px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+
+        .legend-color {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            margin-right: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        /* Loading Spinner */
+        .loading-spinner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 100;
+            display: none;
+        }
+
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 6px solid rgba(0, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--fluorescent-cyan);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Home Button */
+        .home-button {
+            position: absolute;
+            top: 25px; /* Align with search bar */
+            right: 20px;
+            background-color: transparent;
+            color: var(--fluorescent-cyan);
+            border: 1px solid var(--fluorescent-cyan);
+            border-radius: var(--border-radius-modern);
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+            text-decoration: none;
+            z-index: 25; /* Above search bar */
+        }
+
+        .home-button:hover {
+            background-color: var(--fluorescent-cyan);
+            color: var(--deep-space-blue-start);
+            box-shadow: 0 0 10px var(--fluorescent-cyan);
+        }
+
+        .home-button svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .top-search-container {
+                width: 85%;
+                top: 15px;
+            }
+            .search-input { font-size: 14px; padding: 8px 12px; }
+            .search-button { padding: 8px 12px; }
+
+            .info-card {
+                right: 10px;
+                width: calc(100% - 20px); /* Full width on mobile */
+                top: 70px;
+                max-height: 40%; /* Limit height */
+                font-size: 13px;
+            }
+
+            .graph-controls {
+                left: 10px;
+                top: 70px;
+                max-width: calc(100% - 20px);
+                /* Consider hiding controls or making them collapsible on small screens */
+            }
+
+            .bottom-data-panel {
+                width: 95%;
+                font-size: 12px;
+                padding: 8px 15px;
+            }
+
+            .home-button {
+                top: 18px;
+                right: 10px;
+                padding: 6px 10px;
+                font-size: 12px;
+            }
+            .home-button svg { width: 14px; height: 14px; }
+
+            .node-labels text { font-size: 10px; }
+            .link-labels text { font-size: 9px; }
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Top Search Bar -->
+        <div class="top-search-container">
+            <input type="text" id="search-input" class="search-input" placeholder="智能搜索节点 (例如: 感冒, 黄芪)" />
+            <button id="search-button" class="search-button">搜索</button>
+        </div>
+
+        <!-- Home Button -->
+        <a href="/" class="home-button">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            返回
+        </a>
+
+        <!-- Graph Container -->
+        <div class="graph-container" id="graph-container">
+            <!-- D3 SVG will be appended here by script -->
+
+            <!-- Left Controls (Optional) -->
+            <div class="graph-controls">
+                <h3 style="margin-top: 0; margin-bottom: 15px;">图谱控制</h3>
+                <button id="load-data" class="load-button">加载全部方剂</button>
+                <div class="graph-legend" id="graph-legend">
+                    <!-- Legend items -->
+                </div>
+            </div>
+
+            <!-- Right Floating Info Card -->
+            <div class="info-card" id="info-card">
+                <div class="info-card-title" id="info-card-title">节点详情</div>
+                <div class="info-card-content" id="info-card-content">
+                    <!-- Details will be populated by script -->
+                </div>
+            </div>
+
+            <!-- Loading Spinner -->
+            <div class="loading-spinner" id="loading-spinner">
+                <div class="spinner"></div>
+            </div>
+        </div>
+
+        <!-- Bottom Data Panel -->
+        <div class="bottom-data-panel" id="bottom-data-panel">
+            统计信息: <span id="node-count">0</span> 节点, <span id="link-count">0</span> 连接
+            <!-- Add more stats here -->
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Color scale - consider adjusting for the new theme
+            const colors = d3.scaleOrdinal([
+                '#00ffff', // Cyan
+                '#ff00ff', // Magenta
+                '#ccff00', // Lime
+                '#ff9900', // Orange
+                '#66ccff', // Light Blue
+                '#ff6666', // Light Red
+                '#ffffff', // White
+                '#9999ff', // Lavender
+                '#ffcc66', // Light Orange
+                '#66ff99'  // Mint Green
+            ]);
+
+            const graphContainer = document.getElementById('graph-container');
+            const width = graphContainer.offsetWidth;
+            const height = graphContainer.offsetHeight;
+
+            const svg = d3.select('#graph-container')
+                .append('svg')
+                .attr('width', width)
+                .attr('height', height)
+                .style('position', 'absolute') // Ensure SVG is positioned correctly
+                .style('top', 0)
+                .style('left', 0);
+
+            // Arrowhead definition
+            svg.append('defs').append('marker')
+                .attr('id', 'arrowhead')
+                .attr('viewBox', '-0 -5 10 10')
+                .attr('refX', 20) // Adjust based on node size
+                .attr('refY', 0)
+                .attr('orient', 'auto')
+                .attr('markerWidth', 8)
+                .attr('markerHeight', 8)
+                .attr('xoverflow', 'visible')
+                .append('svg:path')
+                .attr('d', 'M 0,-5 L 10 ,0 L 0,5')
+                .attr('fill', 'var(--fluorescent-cyan)') // Use CSS variable
+                .style('stroke', 'none');
+
+            let simulation = createSimulation(width, height);
+
+            const zoom = d3.zoom()
+                .scaleExtent([0.1, 4])
+                .on('zoom', (event) => {
+                    container.attr('transform', event.transform);
+                });
+
+            svg.call(zoom);
+            const container = svg.append('g'); // Main container for graph elements
+
+            // --- Simulation Creation Function ---
+            function createSimulation(w, h) {
+                return d3.forceSimulation()
+                    .force('link', d3.forceLink().id(d => d.id).distance(d => {
+                        const sourceIsPrescription = d.source.labels && d.source.labels.includes('方剂');
+                        const targetIsPrescription = d.target.labels && d.target.labels.includes('方剂');
+                        return (sourceIsPrescription || targetIsPrescription) ? 200 : 130; // Increased distances
+                    }).strength(0.6)) // Adjust link strength
+                    .force('charge', d3.forceManyBody().strength(d => {
+                        return (d.labels && d.labels.includes('方剂')) ? -600 : -300; // Stronger repulsion
+                    }))
+                    .force('center', d3.forceCenter(w / 2, h / 2))
+                    .force('collision', d3.forceCollide().radius(d => {
+                        return (d.labels && d.labels.includes('方剂')) ? 30 : 20; // Larger collision radius
+                    }).strength(0.8)); // Adjust collision strength
+            }
+
+            // --- Drag Functions ---
+            function dragstarted(event, d) {
+                if (!event.active) simulation.alphaTarget(0.3).restart();
+                d.fx = d.x;
+                d.fy = d.y;
+            }
+
+            function dragged(event, d) {
+                d.fx = event.x;
+                d.fy = event.y;
+            }
+
+            function dragended(event, d) {
+                if (!event.active) simulation.alphaTarget(0);
+                d.fx = null;
+                d.fy = null;
+            }
+
+            // --- Data Loading --- //
+            function loadGraphData(apiUrl = '/api/graph/data') {
+                document.getElementById('loading-spinner').style.display = 'block';
+                console.log(`Requesting graph data from: ${apiUrl}`);
+
+                fetch(apiUrl)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        document.getElementById('loading-spinner').style.display = 'none';
+                        if (data.error) {
+                            console.error('Error fetching graph data:', data.error);
+                            alert(`加载数据失败: ${data.error}`);
+                            return;
+                        }
+                        console.log(`Received data: ${data.nodes.length} nodes, ${data.links.length} links`);
+                        updateLegend(data.nodes);
+                        renderGraph(data);
+                        updateStats(data.nodes.length, data.links.length);
+                    })
+                    .catch(error => {
+                        document.getElementById('loading-spinner').style.display = 'none';
+                        console.error('Error during fetch:', error);
+                        alert(`加载数据时出错: ${error.message}`);
+                    });
+            }
+
+            // --- Search Function --- //
+            function searchGraph(keyword) {
+                if (!keyword || keyword.trim() === '') {
+                    alert('请输入搜索关键词');
+                    return;
+                }
+                const searchUrl = `/api/graph/search?keyword=${encodeURIComponent(keyword.trim())}`;
+                loadGraphData(searchUrl);
+            }
+
+            // --- Update Stats --- //
+            function updateStats(nodeCount, linkCount) {
+                document.getElementById('node-count').textContent = nodeCount;
+                document.getElementById('link-count').textContent = linkCount;
+            }
+
+            // --- Update Legend --- //
+            function updateLegend(nodes) {
+                const legendElement = document.getElementById('graph-legend');
+                legendElement.innerHTML = ''; // Clear existing legend
+                const labels = new Set();
+                nodes.forEach(node => {
+                    if (node.labels && node.labels.length > 0) {
+                        node.labels.forEach(label => labels.add(label));
+                    }
+                });
+
+                labels.forEach(label => {
+                    const legendItem = document.createElement('div');
+                    legendItem.className = 'legend-item';
+
+                    const colorBox = document.createElement('div');
+                    colorBox.className = 'legend-color';
+                    colorBox.style.backgroundColor = colors(label);
+
+                    const labelText = document.createElement('span');
+                    labelText.textContent = label;
+
+                    legendItem.appendChild(colorBox);
+                    legendItem.appendChild(labelText);
+                    legendElement.appendChild(legendItem);
+                });
+            }
+
+            // --- Render Graph --- //
+            function renderGraph(data) {
+                container.selectAll('*').remove(); // Clear previous graph elements
+
+                // Recreate simulation with current dimensions
+                simulation = createSimulation(graphContainer.offsetWidth, graphContainer.offsetHeight);
+
+                // Links
+                const link = container.append('g')
+                    .attr('class', 'links')
+                    .selectAll('line')
+                    .data(data.links)
+                    .enter().append('line')
+                    .attr('marker-end', 'url(#arrowhead)');
+
+                // Link Labels
+                const linkText = container.append('g')
+                    .attr('class', 'link-labels')
+                    .selectAll('text')
+                    .data(data.links)
+                    .enter().append('text')
+                    .text(d => d.type)
+                    .attr('text-anchor', 'middle')
+                    .attr('dy', -5);
+
+                // Nodes
+                const node = container.append('g')
+                    .attr('class', 'nodes')
+                    .selectAll('circle')
+                    .data(data.nodes)
+                    .enter().append('circle')
+                    .attr('r', d => (d.labels && d.labels.includes('方剂')) ? 18 : 10) // Adjusted size
+                    .attr('fill', d => (d.labels && d.labels.length > 0) ? colors(d.labels[0]) : '#ccc')
+                    .call(d3.drag()
+                        .on('start', dragstarted)
+                        .on('drag', dragged)
+                        .on('end', dragended));
+
+                // Node Labels
+                const nodeText = container.append('g')
+                    .attr('class', 'node-labels')
+                    .selectAll('text')
+                    .data(data.nodes)
+                    .enter().append('text')
+                    .text(d => d.name || d.properties?.name || '') // Access name safely
+                    .attr('text-anchor', 'middle')
+                    .attr('dy', d => (d.labels && d.labels.includes('方剂')) ? -22 : -15); // Adjust label position based on size
+
+                // --- Tooltip / Info Card Interaction --- //
+                const infoCard = document.getElementById('info-card');
+                const infoCardTitle = document.getElementById('info-card-title');
+                const infoCardContent = document.getElementById('info-card-content');
+
+                node.on('mouseover', function(event, d) {
+                    // Highlight node
+                    d3.select(this)
+                      .transition().duration(150)
+                      .attr('r', d => ((d.labels && d.labels.includes('方剂')) ? 18 : 10) * 1.3) // Enlarge on hover
+                      .style('filter', 'drop-shadow(0 0 8px var(--fluorescent-magenta))');
+
+                    // Populate and show info card
+                    const props = d.properties || {};
+                    infoCardTitle.textContent = props.name || d.name || '未知节点'; // Use property name first
+                    infoCardContent.innerHTML = ''; // Clear previous content
+
+                    // Display labels first
+                    if (d.labels && d.labels.length > 0) {
+                        const labelsDiv = document.createElement('div');
+                        labelsDiv.className = 'tooltip-property';
+                        labelsDiv.innerHTML = `<span class="tooltip-key">类型:</span><span class="tooltip-value">${d.labels.join(', ')}</span>`;
+                        infoCardContent.appendChild(labelsDiv);
+                    }
+
+                    // Display other properties
+                    Object.entries(props).forEach(([key, value]) => {
+                        if (key !== 'name') { // Avoid duplicating name
+                            const propDiv = document.createElement('div');
+                            propDiv.className = 'tooltip-property';
+                            propDiv.innerHTML = `<span class="tooltip-key">${key}:</span><span class="tooltip-value">${value}</span>`;
+                            infoCardContent.appendChild(propDiv);
+                        }
+                    });
+
+                    infoCard.classList.add('visible');
+                })
+                .on('mouseout', function(event, d) {
+                    // Restore node style
+                    d3.select(this)
+                      .transition().duration(150)
+                      .attr('r', d => (d.labels && d.labels.includes('方剂')) ? 18 : 10)
+                      .style('filter', 'drop-shadow(0 0 3px var(--fluorescent-lime))');
+
+                    // Hide info card after a short delay unless hovered over
+                    setTimeout(() => {
+                        if (!infoCard.matches(':hover')) {
+                            infoCard.classList.remove('visible');
+                        }
+                    }, 200);
+                });
+
+                // Keep info card visible if mouse enters it
+                infoCard.addEventListener('mouseleave', () => {
+                    infoCard.classList.remove('visible');
+                });
+
+                // --- Simulation Ticking --- //
+                simulation
+                    .nodes(data.nodes)
+                    .on('tick', ticked);
+
+                simulation.force('link')
+                    .links(data.links);
+
+                function ticked() {
+                    link
+                        .attr('x1', d => d.source.x)
+                        .attr('y1', d => d.source.y)
+                        .attr('x2', d => d.target.x)
+                        .attr('y2', d => d.target.y);
+
+                    linkText
+                        .attr('x', d => (d.source.x + d.target.x) / 2)
+                        .attr('y', d => (d.source.y + d.target.y) / 2);
+
+                    node
+                        .attr('cx', d => d.x)
+                        .attr('cy', d => d.y);
+
+                    nodeText
+                        .attr('x', d => d.x)
+                        .attr('y', d => d.y + ((d.labels && d.labels.includes('方剂')) ? -22 : -15)); // Update label position
+                }
+
+                // Initial zoom fit (optional)
+                // fitGraphToView(data.nodes);
+            }
+
+            // --- Initial Load & Event Listeners --- //
+            document.getElementById('load-data').addEventListener('click', () => loadGraphData('/api/graph/data'));
+            document.getElementById('search-button').addEventListener('click', () => {
+                const keyword = document.getElementById('search-input').value;
+                searchGraph(keyword);
+            });
+            document.getElementById('search-input').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    const keyword = document.getElementById('search-input').value;
+                    searchGraph(keyword);
+                }
+            });
+
+            // Load initial small set of data or prompt user
+            // loadGraphData('/api/graph/random?limit=10'); // Example: Load 10 random nodes initially
+            console.log("Knowledge graph page initialized. Click '加载全部方剂' or search to load data.");
+            updateStats(0, 0); // Initial stats
+
+            // Optional: Resize handler
+            window.addEventListener('resize', () => {
+                const newWidth = graphContainer.offsetWidth;
+                const newHeight = graphContainer.offsetHeight;
+                svg.attr('width', newWidth).attr('height', newHeight);
+                simulation.force('center', d3.forceCenter(newWidth / 2, newHeight / 2)).restart();
+            });
+
+        });
+    </script>
+</body>
+</html>
