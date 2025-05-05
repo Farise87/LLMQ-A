@@ -8,8 +8,12 @@
     <link rel="preconnect" href="/api">
     <link rel="preload" as="fetch" href="/api/model_status" crossorigin>
     <!-- CSS样式 -->
-    <link rel="stylesheet" href="/static/styles.css">
+
+
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.2.0/github-markdown.min.css">
     <style>
         :root {
             --primary-color: #2b5395;
@@ -25,7 +29,7 @@
             --transition: all 0.4s ease;
             --font-size-base: 1.2rem;
         }
-        
+
         body {
             font-family: 'Segoe WPC', 'Segoe UI', 'Microsoft YaHei', 'SFUIText-Light', 'Helvetica Neue', 'Arial', sans-serif;
             margin: 0;
@@ -36,28 +40,50 @@
             display: flex;
             flex-direction: column;
         }
-        
+
         .container {
+
             display: flex;
+
             height: 100vh;
+
             width: 100%;
-            box-shadow: var(--box-shadow);
+
             position: relative;
+
+            /* 移除 box-shadow 或根据需要调整 */
+
         }
-        
+
         /* 左侧历史记录栏 */
         .history-sidebar {
+
             width: 280px;
+
             min-width: 280px;
+
             background: #f0f2f5;
+
             display: flex;
+
             flex-direction: column;
+
             overflow: hidden;
-            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
+
+            /* 调整或移除 box-shadow */
+
+            box-shadow: none; /* 或调整为更小的值，如 1px 0 5px rgba(0, 0, 0, 0.05); */
+
             z-index: 2;
+
             transition: var(--transition);
+
+            position: relative;
+
+            left: 0;
+
         }
-        
+
         /* 添加历史记录切换按钮 */
         .toggle-sidebar {
             display: none;
@@ -74,7 +100,7 @@
             z-index: 3;
             box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
         }
-        
+
         .sidebar-header {
             padding: 16px;
             border-bottom: 1px solid #eaeaea;
@@ -84,14 +110,14 @@
             background: linear-gradient(to right, #f8f9fa, #e9ecef);
             color: var(--primary-color);
         }
-        
+
         .sidebar-header h2 {
             margin: 0;
             font-size: 16px;
             color: #71ace8;
             font-weight: 600;
         }
-        
+
         .icon-button {
             background: none;
             border: none;
@@ -102,19 +128,19 @@
             transition: all 0.2s;
             border-radius: 4px;
         }
-        
+
         .icon-button:hover {
             color: #007acc;
             background-color: rgba(0, 122, 204, 0.1);
         }
-        
+
         .history-list {
             flex: 1;
             overflow-y: auto;
             padding: 12px;
             background-color: #f8f9fa;
         }
-        
+
         .history-item {
             padding: 10px;
             margin-bottom: 8px;
@@ -129,22 +155,28 @@
             overflow: hidden;
             text-overflow: ellipsis;
         }
-        
+
         .history-item:hover {
             background-color: #e9ecef;
             transform: translateY(-2px);
         }
-        
+
         /* 右侧交互区 */
         .chat-area {
+
             flex: 1;
+
             display: flex;
+
             flex-direction: column;
+
             background: white;
+
             position: relative;
+
             min-width: 0; /* 防止flex子项溢出 */
+
         }
-        
         .chat-area::before {
             content: "";
             position: absolute;
@@ -157,7 +189,7 @@
             z-index: -1;
             pointer-events: none;
         }
-        
+
         .header {
             padding: 16px 24px;
             border-bottom: 1px solid #eaeaea;
@@ -167,14 +199,14 @@
             background: linear-gradient(to right, #f8f9fa, #e9ecef);
             position: relative;
         }
-        
+
         .header h1 {
             margin: 0;
             font-size: 18px;
             color: #495057;
             font-weight: 600;
         }
-        
+
         .home-button {
             position: absolute;
             left: 16px;
@@ -194,12 +226,12 @@
             text-decoration: none;
             box-shadow: var(--box-shadow);
         }
-        
+
         .home-button:hover {
             background-color: #1a3c6e;
             transform: translateY(-50%) translateX(2px);
         }
-        
+
         .status-indicator {
             position: absolute;
             right: 16px;
@@ -211,7 +243,7 @@
             font-size: 13px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
-        
+
         .chat-messages {
             flex: 1;
             overflow-y: auto;
@@ -221,36 +253,36 @@
             background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="1" fill="%23e9ecef"/></svg>');
             background-size: 40px;
         }
-        
+
         .message-wrapper {
             padding: 12px 0;
             margin-bottom: 12px;
             animation: fadeIn 0.3s ease-out;
         }
-        
+
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        
+
         .user-message-wrapper {
             background-color: rgba(0, 122, 204, 0.05);
             border-radius: var(--border-radius);
         }
-        
+
         .ai-message-wrapper {
             background-color: white;
             border-radius: var(--border-radius);
             border: 1px solid #e9ecef;
         }
-        
+
         .message-container {
             max-width: 800px;
             margin: 0 auto;
             padding: 0 16px;
             display: flex;
         }
-        
+
         .message {
             word-wrap: break-word;
             white-space: pre-wrap;
@@ -259,15 +291,65 @@
             font-size: 15px;
             line-height: 1.7;
         }
-        
+
         .user-message {
             color: #495057;
         }
-        
+
         .ai-message {
             color: #495057;
         }
-        
+
+        /* Markdown样式 */
+        .markdown-body {
+            color: inherit;
+            background-color: transparent;
+            font-size: 15px;
+            line-height: 1.7;
+        }
+
+        .markdown-body pre {
+            background-color: #f6f8fa;
+            border-radius: 6px;
+            padding: 16px;
+            overflow: auto;
+        }
+
+        .markdown-body code {
+            background-color: rgba(175, 184, 193, 0.2);
+            border-radius: 6px;
+            padding: 0.2em 0.4em;
+            font-size: 85%;
+        }
+
+        .markdown-body pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+
+        .markdown-body blockquote {
+            padding: 0 1em;
+            color: #57606a;
+            border-left: 0.25em solid #d0d7de;
+            margin: 0;
+        }
+
+        .markdown-body table {
+            border-spacing: 0;
+            border-collapse: collapse;
+            margin: 16px 0;
+        }
+
+        .markdown-body table th,
+        .markdown-body table td {
+            padding: 6px 13px;
+            border: 1px solid #d0d7de;
+        }
+
+        .markdown-body table tr:nth-child(2n) {
+            background-color: #f6f8fa;
+        }
+
         .avatar {
             width: 30px;
             height: 30px;
@@ -281,17 +363,17 @@
             flex-shrink: 0;
             box-shadow: var(--box-shadow);
         }
-        
+
         .user-avatar {
             background-color: var(--primary-color);
             color: white;
         }
-        
+
         .ai-avatar {
             background-color: var(--secondary-color);
             color: var(--primary-color);
         }
-        
+
         .typing-indicator {
             padding: 8px 16px;
             background-color: white;
@@ -303,19 +385,19 @@
             z-index: 5;
             box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
         }
-        
+
         .typing-indicator-container {
             max-width: 800px;
             margin: 0 auto;
             display: flex;
             align-items: center;
         }
-        
+
         .typing-indicator-dots {
             display: flex;
             margin-left: 16px;
         }
-        
+
         .typing-indicator-dots span {
             width: 8px;
             height: 8px;
@@ -324,7 +406,7 @@
             margin: 0 2px;
             animation: typing 1.4s infinite ease-in-out;
         }
-        
+
         .stop-button {
             margin-left: auto;
             background-color: #fff1f1;
@@ -339,19 +421,19 @@
             gap: 4px;
             transition: var(--transition);
         }
-        
+
         .stop-button:hover {
             background-color: #ffe6e6;
             transform: translateY(-2px);
         }
-        
+
         .input-area {
             padding: 16px 24px;
             border-top: 1px solid #eaeaea;
             background-color: #f8f9fa;
             position: relative;
         }
-        
+
         .input-container {
             display: flex;
             max-width: 800px;
@@ -361,7 +443,7 @@
             border-radius: var(--border-radius);
             overflow: hidden;
         }
-        
+
         .message-input {
             flex: 1;
             padding: 12px 16px;
@@ -375,12 +457,12 @@
             height: 48px;
             max-height: 200px;
         }
-        
+
         .message-input:focus {
             border-color: var(--primary-color);
             box-shadow: 0 0 0 3px rgba(43, 83, 149, 0.1);
         }
-        
+
         .send-button {
             background-color: var(--primary-color);
             color: white;
@@ -392,16 +474,16 @@
             align-items: center;
             justify-content: center;
         }
-        
+
         .send-button:hover {
             background-color: #1a3c6e;
         }
-        
+
         .send-button:disabled {
             background-color: #b4c4d4;
             cursor: not-allowed;
         }
-        
+
         .knowledge-panel {
             position: fixed;
             top: 0;
@@ -415,11 +497,11 @@
             overflow-y: auto;
             box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
         }
-        
+
         .knowledge-panel.active {
             right: 0;
         }
-        
+
         .knowledge-header {
             padding: 16px;
             border-bottom: 1px solid #eaeaea;
@@ -428,14 +510,14 @@
             align-items: center;
             background: linear-gradient(to right, #f8f9fa, #e9ecef);
         }
-        
+
         .knowledge-header h3 {
             margin: 0;
             font-size: 16px;
             color: var(--primary-color);
             font-weight: 600;
         }
-        
+
         .close-panel {
             background: none;
             border: none;
@@ -444,11 +526,11 @@
             cursor: pointer;
             transition: var(--transition);
         }
-        
+
         .close-panel:hover {
             color: var(--accent-color);
         }
-        
+
         .knowledge-content {
             padding: 16px;
             color: #495057;
@@ -456,7 +538,7 @@
             line-height: 1.6;
             white-space: pre-wrap;
         }
-        
+
         /* 骨架屏样式 */
         #skeleton-loading {
             position: absolute;
@@ -469,13 +551,13 @@
             padding: 20px;
             overflow: hidden;
         }
-        
+
         .skeleton-message {
             display: flex;
             margin-bottom: 20px;
             animation: pulse 1.5s infinite;
         }
-        
+
         .skeleton-avatar {
             width: 30px;
             height: 30px;
@@ -484,87 +566,136 @@
             margin-right: 16px;
             flex-shrink: 0;
         }
-        
+
         .skeleton-content {
             flex: 1;
         }
-        
+
         .skeleton-line {
             height: 12px;
             background-color: #eee;
             border-radius: 4px;
             margin-bottom: 8px;
         }
-        
+
         .skeleton-line.short {
             width: 40%;
         }
-        
+
         .skeleton-line.medium {
             width: 75%;
         }
-        
+
         @keyframes pulse {
             0% { opacity: 0.6; }
             50% { opacity: 1; }
             100% { opacity: 0.6; }
         }
-        
+
         /* 滚动条样式 */
         ::-webkit-scrollbar {
             width: 8px;
         }
-        
+
         ::-webkit-scrollbar-track {
             background: #f1f1f1;
             border-radius: 4px;
         }
-        
+
         ::-webkit-scrollbar-thumb {
             background: #c1c1c1;
             border-radius: 4px;
         }
-        
+
         ::-webkit-scrollbar-thumb:hover {
             background: #a8a8a8;
         }
-        
-        /* 媒体查询 - 响应式设计 */
-        @media (max-width: 992px) {
-            .container {
-                position: relative;
-            }
-            
-            .history-sidebar {
-                position: absolute;
-                left: -280px;
-                height: 100%;
-                z-index: 10;
-            }
-            
-            .history-sidebar.active {
-                left: 0;
-            }
-            
-            .toggle-sidebar {
-                display: block;
-                left: 0;
-            }
-            
-            .toggle-sidebar.active {
-                left: 280px;
-            }
+
+        .chat-area {
+
+            flex: 1;
+
+            display: flex;
+
+            flex-direction: column;
+
+            background: white;
+
+            position: relative;
+
+            /* 移除 min-width: 0 或根据需要调整 */
+
         }
-        
+
+        .chat-area {
+
+            flex: 1;
+
+            display: flex;
+
+            flex-direction: column;
+
+            background: white;
+
+            position: relative;
+
+            /* 移除 min-width: 0 或根据需要调整 */
+
+        }
+
+
+        /* 媒体查询调整 */
+
+        @media (max-width: 992px) {
+
+            .history-sidebar {
+
+                position: absolute;
+
+                left: -280px;
+
+                height: 100%;
+
+                z-index: 10;
+
+                top: 0;
+
+                box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05); /* 仅在移动视图下添加阴影 */
+
+            }
+
+
+            .history-sidebar.active {
+
+                left: 0;
+
+            }
+
+
+            .toggle-sidebar {
+
+                display: block;
+
+                left: 0;
+
+                top: 50%;
+
+                transform: translateY(-50%);
+
+            }
+
+        }
         @media (max-width: 576px) {
             .message-container {
                 padding: 0 8px;
             }
-            
+
             .input-container {
                 padding: 0 8px;
             }
         }
+
+
     </style>
 </head>
 <body>
@@ -598,7 +729,7 @@
             </div>
         </div>
         <button id="toggle-sidebar" class="toggle-sidebar"><i class="fas fa-chevron-right"></i></button>
-        
+
         <div class="chat-area">
             <div class="header">
                 <a href="/" class="home-button">
@@ -608,14 +739,28 @@
                 <h1>AI 中医助手</h1>
                 <div id="model-status" class="status-indicator status-loading">模型加载中...</div>
             </div>
-            
+
             <div class="chat-messages" id="chat-messages">
                 <!-- 消息将在这里动态添加 -->
                 <div class="welcome-message">
-                    <p>欢迎使用AI中医助手，您可以向我咨询任何中医相关问题。</p>
+                    <div class="message-wrapper ai-message-wrapper">
+                        <div class="message-container">
+                            <div class="avatar ai-avatar">AI</div>
+                            <div class="message ai-message">
+                                <p>欢迎使用AI中医助手！您可以向我咨询以下内容：</p>
+                                <ul>
+                                    <li>中医基础知识</li>
+                                    <li>常见病症分析</li>
+                                    <li>中药方剂查询</li>
+                                    <li>养生保健建议</li>
+                                </ul>
+                                <p>请直接在下方输入您的问题。</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-            
+
             <div class="typing-indicator" id="typing-indicator" style="display: none;">
                 <div class="typing-indicator-container">
                     <div class="avatar ai-avatar">AI</div>
@@ -630,7 +775,7 @@
                     </button>
                 </div>
             </div>
-            
+
             <div class="input-area">
                 <div class="input-container">
                     <textarea id="message-input" class="message-input" placeholder="输入你的问题..." disabled rows="1"></textarea>
@@ -640,7 +785,7 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="knowledge-panel" id="knowledge-panel">
             <div class="knowledge-header">
                 <h3>知识库引用</h3>
