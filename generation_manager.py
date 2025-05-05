@@ -71,6 +71,8 @@ class GenerationManager:
                 
             self.active_generations[session_id]['status'] = 'completed'
             self.active_generations[session_id]['result'] = result
+            # 由于不再使用RAG，knowledge_info将始终为空字符串
+            # 所有知识信息将通过MCP工具API直接获取
             return True
     
     def update_generation_error(self, session_id, error):

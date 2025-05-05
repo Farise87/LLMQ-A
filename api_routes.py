@@ -1,8 +1,10 @@
 import os
 import threading
+import json
 from flask import request, jsonify, render_template, redirect, url_for, session
 from db_manager import DBManager
 from neo4j_manager import Neo4jManager
+from tool_manager import ToolManager
 
 class ApiRoutes:
     """API路由处理类，负责处理Web API请求"""
@@ -37,6 +39,7 @@ class ApiRoutes:
         self.app.route('/herbs.html')(self.herbs)
         self.app.route('/方剂大全.html')(self.herbs)
         self.app.route('/中医资讯.html')(self.zhongyi_news)
+        self.app.route('/资讯目录.html')(self.news_list)
         self.app.route('/index.html')(self.assistant)
         self.app.route('/newhome.html')(self.home)
         self.app.route('/admin')(self.admin)
@@ -84,6 +87,15 @@ class ApiRoutes:
 
         # 管理后台API路由 - 统计数据
         self.app.route('/api/admin/counts', methods=['GET'])(self.get_medicine_and_herb_counts)
+        
+        # 工具系统API路由
+        self.app.route('/api/tools', methods=['GET'])(self.get_tools)
+        self.app.route('/api/tools/execute', methods=['POST'])(self.execute_tool)
+        
+        # 资讯相关API路由
+        self.app.route('/api/news', methods=['GET'])(self.get_news)
+        self.app.route('/api/news/<int:news_id>', methods=['GET'])(self.get_news_detail)
+        self.app.route('/news/<int:news_id>')(self.news_detail)
     
     def home(self):
         """渲染主页"""
@@ -201,6 +213,30 @@ class ApiRoutes:
         
         results = self.db_manager.search_all(keyword)
         return jsonify(results)
+        
+    # 资讯相关API处理方法
+    def get_news(self):
+        """获取所有资讯信息"""
+        news = self.db_manager.get_all_news()
+        return jsonify(news)
+    
+    def get_news_detail(self, news_id):
+        """获取资讯详情API"""
+        news = self.db_manager.get_news_by_id(news_id)
+        if not news:
+            return jsonify({"error": "找不到指定资讯"}), 404
+        return jsonify(news)
+    
+    def news_detail(self, news_id):
+        """渲染资讯详情页面"""
+        news = self.db_manager.get_news_by_id(news_id)
+        if not news:
+            return redirect(url_for('zhongyi_news'))
+        return render_template('最新资讯详情.html', news=news)
+        
+    def news_list(self):
+        """渲染资讯目录页面"""
+        return render_template('资讯目录.html')
 
     def get_graph_data(self):
         """获取知识图谱数据"""
@@ -239,17 +275,18 @@ class ApiRoutes:
         self.generation_manager.clean_completed_generations()
         
         try:
-            # 检索相关方剂信息
-            relevant_info = self.knowledge_base.retrieve_relevant_info(user_input)
+            # 导入MCP系统提示模块
+            from mcp_system_prompt import create_chat_prompt
             
-            # 构建带有上下文的提示
-            if relevant_info:
-                prompt = f"你是一名专业的老中医，你可以给我推荐中药方剂，以下是与问题相关的中医方剂知识：\n\n{relevant_info}\n\n这是问题：{user_input}\n\n根据问题中的症状集合中医方剂知识，回答，在回答后，请附上你引用的方剂信息：\n{relevant_info}"
-            else:
-                prompt = user_input
+            # 获取工具描述
+            tools = self.model_manager.tool_manager.get_tool_descriptions()
             
-            # 创建新的生成任务
-            self.generation_manager.create_generation_task(session_id, prompt, relevant_info)
+            # 创建带有MCP系统提示和工具信息的提示
+            prompt = create_chat_prompt(user_input, tools)
+            
+            # 不再使用知识库检索，完全依赖MCP系统通过工具API查询数据库
+            # 创建新的生成任务，knowledge_info参数传入空字符串
+            self.generation_manager.create_generation_task(session_id, prompt, "")
             
             # 在单独线程中启动生成任务
             thread = threading.Thread(
@@ -267,6 +304,40 @@ class ApiRoutes:
         except Exception as e:
             return jsonify({"error": f"处理请求时出错: {str(e)}"}), 500
     
+    def get_tools(self):
+        """获取可用工具列表"""
+        try:
+            # 从模型管理器获取工具描述
+            tool_descriptions = self.model_manager.tool_manager.get_tool_descriptions()
+            return jsonify({
+                'tools': tool_descriptions
+            })
+        except Exception as e:
+            return jsonify({
+                'error': str(e)
+            }), 500
+    
+    def execute_tool(self):
+        """执行工具"""
+        try:
+            # 获取请求数据
+            data = request.get_json()
+            tool_id = data.get('tool_id')
+            parameters = data.get('parameters', {})
+            
+            if not tool_id:
+                return jsonify({
+                    'error': '未提供工具ID'
+                }), 400
+            
+            # 执行工具
+            result = self.model_manager.tool_manager.execute_tool(tool_id, parameters)
+            return jsonify(result)
+        except Exception as e:
+            return jsonify({
+                'error': str(e)
+            }), 500
+    
     def generation_status(self):
         """获取生成任务的状态"""
         session_id = request.args.get('session_id')
@@ -283,10 +354,10 @@ class ApiRoutes:
             })
         elif generation_info['status'] == 'completed':
             # 任务完成，返回结果
+            # 不再返回knowledge_info，因为已经移除RAG，所有知识信息将通过MCP工具API直接获取
             result = {
                 "status": "completed",
-                "response": generation_info['result'],
-                "knowledge_info": generation_info['knowledge_info'] if generation_info['knowledge_info'] else ""
+                "response": generation_info['result']
             }
             return jsonify(result)
         elif generation_info['status'] == 'error':

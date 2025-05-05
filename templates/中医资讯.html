@@ -938,20 +938,93 @@
 	    <header>
 
 	        <div class="nav-container">
-
-	            <div class="logo">中医资讯</div>
-
+	            <div class="left-section">
+	                <a href="/newhome.html" class="back-button">返回首页</a>
+	                <div class="logo">中医资讯</div>
+	            </div>
 	        
 
 	            <div class="search-box">
-
-	                <input type="text" placeholder="搜索中医知识...">
-
+	                <input type="text" id="search-input" placeholder="搜索中医资讯...">
+	                <button id="search-btn" class="search-btn">搜索</button>
 	            </div>
 
 	        </div>
 
 	    </header>
+	    
+	    <style>
+	        /* 返回按钮样式 */
+	        .back-button {
+	            display: inline-flex;
+	            align-items: center;
+	            gap: 0.5rem;
+	            color: white;
+	            text-decoration: none;
+	            font-weight: 500;
+	            transition: color 0.3s;
+	            margin-right: 1rem;
+	        }
+	        
+	        .back-button:hover {
+	            color: var(--secondary-color);
+	        }
+	        
+	        .back-button::before {
+	            content: "←";
+	        }
+	        
+	        .left-section {
+	            display: flex;
+	            align-items: center;
+	        }
+	        
+	        /* 搜索按钮样式 */
+	        .search-btn {
+	            background-color: var(--accent-color);
+	            color: white;
+	            border: none;
+	            padding: 0.5rem 1rem;
+	            border-radius: 0 20px 20px 0;
+	            cursor: pointer;
+	            transition: background-color 0.3s;
+	        }
+	        
+	        .search-btn:hover {
+	            background-color: var(--primary-color);
+	        }
+	        
+	        /* 搜索框修改 */
+	        .search-box input {
+	            padding: 0.5rem 1rem;
+	            border-radius: 20px 0 0 20px !important;
+	            border: none;
+	        }
+	    </style>
+	    
+	    <script>
+	    document.addEventListener('DOMContentLoaded', function() {
+	        const searchBtn = document.getElementById('search-btn');
+	        const searchInput = document.getElementById('search-input');
+	        
+	        searchBtn.addEventListener('click', function() {
+	            performSearch();
+	        });
+	        
+	        searchInput.addEventListener('keypress', function(e) {
+	            if (e.key === 'Enter') {
+	                performSearch();
+	            }
+	        });
+	        
+	        function performSearch() {
+	            const keyword = searchInput.value.trim();
+	            if (keyword) {
+	                window.location.href = `/资讯目录.html?keyword=${encodeURIComponent(keyword)}`;
+	            }
+	        }
+	    });
+	    </script>
 
 	 
 
@@ -1050,51 +1123,53 @@
 
 	                <h2>最新资讯</h2>
 
-	                <ul class="news-list">
+	                <ul class="news-list" id="news-list">
+
+	                    <!-- 资讯列表将通过JavaScript动态加载 -->
 
 	                    <li>
 
-	                        <a href="#">
-
-	                            <span class="news-title">冬季养生：中医专家推荐5种滋补食材</span>
-
-	                            <span class="news-date">2023-11-15</span>
-
-	                        </a>
-
-	                    </li>
-
-	                    <li>
-
-	                        <a href="#">
-
-	                            <span class="news-title">中医针灸被列入联合国非物质文化遗产名录</span>
-
-	                            <span class="news-date">2023-11-10</span>
-
-	                        </a>
-
-	                    </li>
-
-	                    <li>
-
-	                        <a href="#">
-
-	                            <span class="news-title">研究发现：中药复方对新冠肺炎有显著疗效</span>
-
-	                            <span class="news-date">2023-11-05</span>
-
-	                        </a>
-
-	                    </li>
-
-	                    <li>
-
-	                        <a href="#" class="view-more">查看更多 &raquo;</a>
+	                        <a href="/资讯目录.html" class="view-more">查看更多 &raquo;</a>
 
 	                    </li>
 
 	                </ul>
+
+                    <script>
+                    // 页面加载完成后获取资讯数据
+                    document.addEventListener('DOMContentLoaded', function() {
+                        // 获取资讯列表
+                        fetch('/api/news')
+                            .then(response => response.json())
+                            .then(data => {
+                                const newsList = document.getElementById('news-list');
+                                // 清空现有内容，保留最后一个"查看更多"链接
+                                const viewMoreItem = newsList.querySelector('.view-more').parentNode;
+                                newsList.innerHTML = '';
+                                
+                                // 显示最多5条资讯
+                                const newsToShow = data.slice(0, 5);
+                                
+                                // 添加资讯列表项
+                                newsToShow.forEach(news => {
+                                    const li = document.createElement('li');
+                                    li.innerHTML = `
+                                        <a href="/news/${news.id}">
+                                            <span class="news-title">${news.标题 || news.title || '资讯标题'}</span>
+                                            <span class="news-date">${new Date().toLocaleDateString()}</span>
+                                        </a>
+                                    `;
+                                    newsList.appendChild(li);
+                                });
+                                
+                                // 添加"查看更多"链接
+                                newsList.appendChild(viewMoreItem);
+                            })
+                            .catch(error => {
+                                console.error('获取资讯数据失败:', error);
+                            });
+                    });
+                    </script>
 
 	            </div>
 

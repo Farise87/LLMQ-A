@@ -1,4 +1,5 @@
 from model_loaders.deepseek_api_loader import DeepseekAPILoader
+from tool_manager import ToolManager
 
 class ModelManager:
     """模型管理器，负责API模型的配置和调用"""
@@ -11,6 +12,7 @@ class ModelManager:
         """
         self.model = None
         self.config = config
+        self.tool_manager = ToolManager()
     
     def set_config(self, config):
         """设置API配置
@@ -45,6 +47,10 @@ class ModelManager:
             
             # 保存加载器实例
             self.model = loader
+            
+            # 设置工具管理器
+            self.model.set_tool_manager(self.tool_manager)
+            
             print("API配置成功!")
             return True
             

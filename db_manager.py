@@ -251,6 +251,52 @@ class DBManager:
             print(f"获取药材功用分类时出错: {e}")
             return []
             
+    # 资讯相关方法
+    def get_all_news(self):
+        """获取所有中医资讯
+        
+        Returns:
+            资讯列表
+        """
+        if not self.connection or not self.connection.is_connected():
+            if not self.connect():
+                return []
+        
+        try:
+            cursor = self.connection.cursor(dictionary=True)
+            query = "SELECT * FROM medicine_news ORDER BY id DESC"
+            cursor.execute(query)
+            result = cursor.fetchall()
+            cursor.close()
+            return result
+        except Error as e:
+            print(f"获取资讯数据时出错: {e}")
+            return []
+    
+    def get_news_by_id(self, news_id):
+        """通过ID获取资讯详情
+        
+        Args:
+            news_id: 资讯ID
+            
+        Returns:
+            资讯详情
+        """
+        if not self.connection or not self.connection.is_connected():
+            if not self.connect():
+                return None
+                
+        try:
+            cursor = self.connection.cursor(dictionary=True)
+            query = "SELECT * FROM medicine_news WHERE id = %s"
+            cursor.execute(query, (news_id,))
+            result = cursor.fetchone()
+            cursor.close()
+            return result
+        except Error as e:
+            print(f"获取资讯详情时出错: {e}")
+            return None
+            
     # 药材管理方法
     def add_medicine(self, medicine_data):
         """添加新药材

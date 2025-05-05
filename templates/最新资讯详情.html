@@ -1,0 +1,169 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ news.标题 if news else '资讯详情' }}</title>
+    <style>
+        :root {
+            --primary-color: #80634d;
+            --secondary-color: #f7d8b0;
+            --accent-color: #A0522D;
+            --text-color: #333;
+            --light-bg: #F5F5F5;
+            --border-radius: 8px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+        }
+
+	        
+
+        body {
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--light-bg);
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary-color), #6B4226);
+            color: white;
+            padding: 1rem 5%;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            font-size: 1.6rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: white;
+            text-decoration: none;
+        }
+
+        .logo::before {
+            content: "🌿";
+            font-size: 1.8rem;
+        }
+
+	        
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 5%;
+        }
+
+        .article {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 2rem;
+        }
+
+	        
+
+        .article-title {
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .article-image {
+            width: 100%;
+            max-width: 800px;
+            height: auto;
+            margin: 1.5rem auto;
+            display: block;
+            border-radius: var(--border-radius);
+        }
+
+        .article-content {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: var(--text-color);
+            margin-top: 2rem;
+            white-space: pre-line;
+        }
+
+	        
+
+        @media (max-width: 768px) {
+            .article-title {
+                font-size: 1.5rem;
+            }
+
+            .article {
+                padding: 1rem;
+            }
+
+            .article-content {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="nav-container">
+            <div class="left-section">
+                <a href="/中医资讯.html" class="back-button">返回资讯页</a>
+                <a href="/中医资讯.html" class="logo">中医资讯</a>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <style>
+            /* 返回按钮样式 */
+            .back-button {
+                display: inline-flex;
+                align-items: center;
+                gap: 0.5rem;
+                color: white;
+                text-decoration: none;
+                font-weight: 500;
+                transition: color 0.3s;
+                margin-right: 1rem;
+            }
+            
+            .back-button:hover {
+                color: var(--secondary-color);
+            }
+            
+            .back-button::before {
+                content: "←";
+            }
+            
+            .left-section {
+                display: flex;
+                align-items: center;
+            }
+        </style>
+        <article class="article">
+            <h1 class="article-title">{{ news.标题 }}</h1>
+            {% if news.图片链接 %}
+            <img src="{{ news.图片链接 }}" alt="{{ news.标题 }}" class="article-image">
+            {% endif %}
+            <div class="article-content">
+                {{ news.文章内容 }}
+            </div>
+        </article>
+    </div>
+</body>
+</html>

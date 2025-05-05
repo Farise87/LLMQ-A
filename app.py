@@ -8,6 +8,7 @@ from model_manager import ModelManager
 from knowledge_base import KnowledgeBase
 from generation_manager import GenerationManager
 from api_routes import ApiRoutes
+from tool_manager import ToolManager
 
 # DeepSeek API配置
 MODEL_PATH = {
@@ -38,6 +39,10 @@ def create_app():
     
     # 初始化API路由
     api_routes = ApiRoutes(app, model_manager, knowledge_base, generation_manager)
+    
+    # 打印MCP系统初始化信息
+    print("MCP系统已初始化，DeepSeek模型可以调用工具系统")
+    print(f"已注册工具数量: {len(model_manager.tool_manager.tools)}")
     
     return app, model_manager, knowledge_base
 
