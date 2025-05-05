@@ -1,141 +1,128 @@
-# AiQA - 中医方剂知识增强系统
+# 中医药智能助手系统
 
-这是一个基于大语言模型的中医方剂知识增强系统，支持GGUF和Safetensors两种格式的模型，通过网页界面实现与AI模型的对话功能，并结合中医方剂知识库提供专业的中医咨询服务。
+## 项目简介
+
+本项目是一个基于Python和Flask框架开发的中医药智能助手系统，集成了中医药知识库、智能问答、药材管理等功能。系统采用MCP（Model-Controller-Processor）架构，结合DeepSeek API实现智能交互，为用户提供专业的中医药咨询服务。
 
 ## 功能特点
 
-- **双模型格式支持**：同时支持GGUF和Safetensors两种格式的大语言模型
-- **自动模型加载**：根据模型格式自动选择合适的加载器
-- **中医方剂知识库**：集成中医方剂数据，提供专业的中医知识支持
-- **智能检索匹配**：使用TF-IDF向量化和余弦相似度算法实现精准的方剂推荐
-- **简洁美观的界面**：提供直观的网页对话界面
-- **实时状态显示**：显示模型加载状态
-- **连续对话支持**：保持上下文的连贯性
+- **智能问答系统**：基于DeepSeek API的智能对话功能
+- **中药知识库**：包含丰富的方剂和药材数据
+- **药材管理系统**：支持药材的增删改查
+- **方剂检索**：多维度的方剂搜索功能
+- **中医资讯**：提供最新中医药相关资讯
+- **后台管理**：完整的数据管理功能
 
-## 系统架构
+## 技术架构
 
-系统由以下主要组件构成：
+### 后端技术
 
-1. **模型加载器工厂**：根据模型格式自动选择合适的加载器
-   - GGUF模型加载器：基于llama-cpp-python库加载GGUF格式模型
-   - Safetensors模型加载器：基于Transformers库加载Safetensors格式模型
+- **Web框架**：Flask 3.1.0
+- **数据库**：MySQL
+- **API集成**：DeepSeek API
+- **跨域支持**：Flask-CORS
 
-2. **知识库管理**：加载和处理中医方剂CSV知识库
+### 核心组件
 
-3. **检索引擎**：使用TF-IDF向量化和余弦相似度算法实现相关方剂检索
+1. **工具管理器（ToolManager）**
+   - 注册和管理工具系统
+   - 提供工具执行接口
 
-4. **Web服务**：基于Flask的Web应用，提供RESTful API和用户界面
+2. **模型管理器（ModelManager）**
+   - DeepSeek API集成
+   - 工具系统调用
 
-## 安装步骤
+3. **数据库管理器（DBManager）**
+   - MySQL数据库操作
+   - 数据CRUD接口
 
-### 1. 克隆仓库
+4. **API路由（ApiRoutes）**
+   - RESTful API设计
+   - 请求处理和响应
 
-```bash
-git clone https://github.com/Farise87/LLMQ-A.git
-cd LLMQ-A
-```
+## 数据库设计
 
-### 2. 安装依赖
+### 主要数据表
 
-```bash
-pip install -r requirements.txt
-```
+1. **chinese_medicine（方剂表）**
+   - 药剂名称
+   - 功用
+   - 症状
+   - 组成
 
-### 3. 配置模型路径
+2. **medicine_data（药材表）**
+   - 药材名称
+   - 别名
+   - 性味归经
+   - 功用
+   - 症状
+   - 用法用量
+   - 注意事项
 
-在`app.py`文件中，根据您的模型位置修改`MODEL_PATH`变量：
+3. **medicine_news（资讯表）**
+   - 资讯标题
+   - 内容
+   - 发布时间
 
-```python
-# GGUF格式模型
-MODEL_PATH = "D:\\your_model.gguf"
+## API接口说明
 
-# 或者Safetensors格式模型
-# MODEL_PATH = "D:\\safetensors_model_dir"
-```
+### 方剂相关接口
 
-## 使用方法
+- `GET /api/herbs`：获取所有方剂信息
+- `GET /api/herbs/search`：搜索方剂
+- `GET /api/herbs/category`：按分类获取方剂
 
-### 启动服务
+### 药材相关接口
 
-```bash
-python app.py
-```
+- `GET /api/medicines`：获取所有药材信息
+- `GET /api/medicines/search`：搜索药材
+- `GET /api/medicines/function`：按功用获取药材
 
-启动后，服务将在 http://localhost:5000 运行。
+### 智能助手接口
 
-### 使用界面
+- `POST /api/chat`：智能对话
+- `GET /api/generation_status`：获取生成状态
+- `POST /api/cancel_generation`：取消生成任务
 
-1. 打开浏览器访问 http://localhost:5000
-2. 等待模型加载完成（状态指示器变为绿色）
-3. 在输入框中输入中医相关问题并发送
-4. 系统会结合AI模型和中医方剂知识库提供回答
+## 部署指南
 
-## 模型支持说明
+### 环境要求
 
-### GGUF格式模型
+- Python 3.x
+- MySQL数据库
+- 所需Python包见requirements.txt
 
-- 使用llama-cpp-python库加载
-- 支持参数配置：上下文窗口大小、线程数、GPU加速等
-- 适合在CPU环境运行的量化模型
+### 安装步骤
 
-### Safetensors格式模型
+1. 克隆项目代码
+2. 安装依赖：
+   ```bash
+   pip install -r requirements.txt
+   ```
+3. 配置数据库连接：
+   - 修改db_manager.py中的数据库连接参数
 
-- 使用Transformers库加载
-- 支持参数配置：设备选择、精度设置等
-- 适合在GPU环境运行的完整模型
+4. 配置DeepSeek API：
+   - 在app.py中设置API密钥
 
-## 知识库集成
+5. 启动应用：
+   ```bash
+   python app.py
+   ```
 
-系统集成了中医方剂知识库（CSV格式），包含以下信息：
+### 访问地址
 
-- 方剂名称
-- 配方组成
-- 功用主治
-- 适用症状
-- 使用注意事项
-- 用法用量
+- 主页：http://localhost:5000
+- 管理后台：http://localhost:5000/admin
 
-系统使用TF-IDF向量化和余弦相似度算法，根据用户的问题自动检索相关的方剂信息，并结合大语言模型的回答提供专业的中医咨询服务。
+## 注意事项
 
-## 系统要求
+- 首次使用需要导入数据库文件
+- 确保DeepSeek API密钥配置正确
+- 管理后台默认账号：123，密码：123
 
-- Python 3.8 或更高版本
-- 足够的内存来加载大语言模型（建议至少8GB RAM）
-- 如需GPU加速，请确保有兼容的NVIDIA GPU并安装相应的CUDA工具包
+## 技术支持
 
-## 自定义配置
-
-在`app.py`中，您可以调整以下参数：
-
-### GGUF模型参数
-
-```python
-n_ctx=2048      # 上下文窗口大小
-n_threads=4      # 使用的CPU线程数
-n_gpu_layers=0   # 使用的GPU层数（如果有GPU）
-```
-
-### Safetensors模型参数
-
-```python
-device="cpu"     # 设备选择，可以是'cpu'或'cuda'
-load_in_8bit=False  # 是否以8位精度加载模型
-```
-
-### 知识库检索参数
-
-```python
-top_k=3          # 检索的方剂数量
-similarity_threshold=0.1  # 相似度阈值
-```
-
-## 故障排除
-
-- 如果模型加载失败，请检查模型路径是否正确，以及模型格式是否与加载器兼容
-- 如果遇到内存不足错误，请尝试减小`n_ctx`参数或使用更小的模型
-- 如果生成速度太慢，可以尝试增加`n_threads`或启用GPU加速
-- 如果知识库加载失败，请检查CSV文件路径是否正确，以及文件格式是否符合要求
-
-## 贡献指南
-
-欢迎提交问题和改进建议！请通过GitHub Issues或Pull Requests参与项目开发。
+- 数据库问题请检查MySQL连接配置
+- API调用问题请确认DeepSeek API密钥是否有效
+- 建议定期备份数据库

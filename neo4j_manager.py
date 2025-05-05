@@ -1,25 +1,18 @@
 from neo4j import GraphDatabase
+from config import NEO4J_CONFIG
 
 class Neo4jManager:
     """Neo4j图数据库管理类，负责处理Neo4j数据库连接和查询"""
     
-    def __init__(self, uri="bolt://localhost:7687", user="neo4j", password="password"):
-        """初始化Neo4j数据库管理器
-        
-        Args:
-            uri: Neo4j数据库URI
-            user: 数据库用户名
-            password: 数据库密码
-        """
-        self.uri = uri
-        self.user = user
-        self.password = password
+    def __init__(self):
+        """初始化Neo4j数据库管理器"""
+        self.config = NEO4J_CONFIG
         self.driver = None
     
     def connect(self):
         """连接到Neo4j数据库"""
         try:
-            self.driver = GraphDatabase.driver(self.uri, auth=(self.user, self.password))
+            self.driver = GraphDatabase.driver(self.config['uri'], auth=(self.config['user'], self.config['password']))
             # 测试连接
             with self.driver.session() as session:
                 session.run("RETURN 1")
@@ -225,4 +218,4 @@ class Neo4jManager:
                 return {"nodes": nodes, "links": links}
         except Exception as e:
             print(f"搜索Neo4j数据时出错: {e}")
-            return {"nodes": [], "links": []} 
+            return {"nodes": [], "links": []}

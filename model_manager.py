@@ -1,17 +1,14 @@
 from model_loaders.deepseek_api_loader import DeepseekAPILoader
 from tool_manager import ToolManager
+from config import DEEPSEEK_CONFIG
 
 class ModelManager:
     """模型管理器，负责API模型的配置和调用"""
     
-    def __init__(self, config=None):
-        """初始化模型管理器
-        
-        Args:
-            config: API配置信息，包含api_key和可选的api_base
-        """
+    def __init__(self):
+        """初始化模型管理器"""
         self.model = None
-        self.config = config
+        self.config = DEEPSEEK_CONFIG
         self.tool_manager = ToolManager()
     
     def set_config(self, config):

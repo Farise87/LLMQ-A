@@ -1,34 +1,19 @@
 import mysql.connector
 from mysql.connector import Error
+from config import MYSQL_CONFIG
 
 class DBManager:
     """数据库管理类，负责处理MySQL数据库连接和查询"""
     
-    def __init__(self, host="localhost", user="root", password="2025", database="fangji"):
-        """初始化数据库管理器
-        
-        Args:
-            host: 数据库主机地址
-            user: 数据库用户名
-            password: 数据库密码
-            database: 数据库名称
-        """
-        self.host = host
-        self.user = user
-        self.password = password
-        self.database = database
+    def __init__(self):
+        """初始化数据库管理器"""
+        self.config = MYSQL_CONFIG
         self.connection = None
     
     def connect(self):
         """连接到MySQL数据库"""
         try:
-            self.connection = mysql.connector.connect(
-                host=self.host,
-                user=self.user,
-                password=self.password,
-                database=self.database,
-                charset='utf8mb4'
-            )
+            self.connection = mysql.connector.connect(**self.config)
             return True
         except Error as e:
             print(f"数据库连接错误: {e}")
@@ -568,3 +553,7 @@ class DBManager:
         except Error as e:
             print(f"获取方剂总数时出错: {e}")
             return 0
+
+
+
+

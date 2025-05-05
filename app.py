@@ -10,14 +10,8 @@ from generation_manager import GenerationManager
 from api_routes import ApiRoutes
 from tool_manager import ToolManager
 
-# DeepSeek API配置
-MODEL_PATH = {
-    'type': 'deepseek_api',
-    'api_key': 'sk-fef9107166bc48dd924c5b030f0b38eb'  # 请替换为实际的API密钥
-}
-
-# 知识库路径
-CSV_PATH = "最终方剂.csv"
+# 导入配置
+from config import DEEPSEEK_CONFIG, KNOWLEDGE_BASE_CONFIG
 
 def create_app():
     """创建并配置Flask应用"""
@@ -29,10 +23,10 @@ def create_app():
     app.secret_key = 'AiQA_admin_secret_key_2024'  # 使用固定的密钥
     
     # 初始化模型管理器
-    model_manager = ModelManager(MODEL_PATH)
+    model_manager = ModelManager()
     
     # 初始化知识库管理器
-    knowledge_base = KnowledgeBase(CSV_PATH)
+    knowledge_base = KnowledgeBase(KNOWLEDGE_BASE_CONFIG['csv_path'])
     
     # 初始化生成任务管理器
     generation_manager = GenerationManager()
